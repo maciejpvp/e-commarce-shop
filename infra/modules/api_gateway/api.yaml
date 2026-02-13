@@ -1,0 +1,64 @@
+openapi: 3.0.1
+info:
+  title: e-commarce-shop-api
+  description: HTTP API Gateway for e-commarce-shop
+  version: 1.0.0
+
+paths:
+  /:
+    post:
+      responses:
+        default:
+          description: Default response
+      security:
+        - cognito: []
+      x-amazon-apigateway-integration:
+        uri: ${post_integration_uri}
+        responses:
+          default:
+            statusCode: 200
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        contentHandling: CONVERT_TO_TEXT
+        type: aws_proxy
+        payloadFormatVersion: "2.0"
+        timeoutInMillis: 12000
+
+components:
+  securitySchemes:
+    cognito:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        jwtConfiguration:
+          audience:
+            - ${cognito_audience}
+          issuer: ${cognito_issuer}
+
+x-amazon-apigateway-cors:
+  allowHeaders:
+    - content-type
+    - x-amz-date
+    - authorization
+    - x-api-key
+    - x-amz-security-token
+    - x-amz-user-agent
+  allowMethods:
+    - "*"
+  allowOrigins:
+    - "*"
+
+# Default route ($default in API Gateway V2)
+x-amazon-apigateway-any-method:
+  x-amazon-apigateway-integration:
+    uri: ${default_integration_uri}
+    responses:
+      default:
+        statusCode: 200
+    passthroughBehavior: when_no_match
+    httpMethod: ANY
+    type: aws_proxy
+    payloadFormatVersion: "2.0"
