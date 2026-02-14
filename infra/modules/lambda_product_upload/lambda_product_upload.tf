@@ -27,10 +27,22 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 }
 
 # --- Lambda Function ---
+
+resource "null_resource" "build_lambda" {
+  triggers = {
+    src_hash = filesha256("${path.module}/../../../src/upload_product/index.ts")
+  }
+
+  provisioner "local-exec" {
+    command = "cd ${path.module}/../../.. && npx esbuild src/upload_product/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=infra/modules/lambda_product_upload/dist/index.mjs"
+  }
+}
+
 data "archive_file" "upload_product" {
   type        = "zip"
-  source_dir  = "${path.module}/../../../src/upload_product"
+  source_file = "${path.module}/dist/index.mjs"
   output_path = "${path.module}/upload_product.zip"
+  depends_on  = [null_resource.build_lambda]
 }
 
 resource "aws_lambda_function" "upload_product" {

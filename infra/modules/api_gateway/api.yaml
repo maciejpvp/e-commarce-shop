@@ -9,15 +9,14 @@ paths:
     post:
       summary: Upload a new product
       responses:
-        default:
-          description: Default response
+        "200":
+          description: OK
       security:
         - cognito: []
       x-amazon-apigateway-integration:
         uri: ${upload_product_lambda_uri}
         httpMethod: POST
         type: aws_proxy
-        payloadFormatVersion: "2.0"
         timeoutInMillis: 12000
 
 components:
@@ -27,22 +26,6 @@ components:
       name: Authorization
       in: header
       x-amazon-apigateway-authorizer:
-        type: jwt
-        identitySource: $request.header.Authorization
-        jwtConfiguration:
-          audience:
-            - ${cognito_audience}
-          issuer: ${cognito_issuer}
-
-x-amazon-apigateway-cors:
-  allowHeaders:
-    - content-type
-    - x-amz-date
-    - authorization
-    - x-api-key
-    - x-amz-security-token
-    - x-amz-user-agent
-  allowMethods:
-    - "*"
-  allowOrigins:
-    - "*"
+        type: cognito_user_pools
+        providerArns:
+          - ${cognito_user_pool_arn}

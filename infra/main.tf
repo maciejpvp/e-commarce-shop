@@ -17,6 +17,7 @@ module "api_gateway" {
   Environment                      = var.Environment
   cognito_user_pool_client_id      = module.cognito.cognito_user_pool_client_id
   cognito_user_pool_endpoint       = module.cognito.cognito_user_pool_endpoint
+  cognito_user_pool_arn            = module.cognito.cognito_user_pool_arn
   upload_product_lambda_invoke_arn = module.lambda_product_upload.lambda_invoke_arn
 }
 
