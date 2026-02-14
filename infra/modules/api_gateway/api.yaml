@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: e-commarce-shop-api
-  description: HTTP API Gateway for e-commarce-shop
+  description: REST API Gateway for e-commarce-shop
   version: 1.0.0
 
 paths:
@@ -12,7 +12,7 @@ paths:
         "200":
           description: OK
       security:
-        - cognito: []
+        - cognito_auth: [] 
       x-amazon-apigateway-integration:
         uri: ${upload_product_lambda_uri}
         httpMethod: POST
@@ -21,11 +21,12 @@ paths:
 
 components:
   securitySchemes:
-    cognito:
+    cognito_auth:
       type: apiKey
       name: Authorization
       in: header
+      x-amazon-apigateway-authtype: "cognito_user_pools"
       x-amazon-apigateway-authorizer:
-        type: cognito_user_pools
-        providerArns:
-          - ${cognito_user_pool_arn}
+        type: "cognito_user_pools"
+        providerARNs:
+          - "${cognito_user_pool_arn}"
