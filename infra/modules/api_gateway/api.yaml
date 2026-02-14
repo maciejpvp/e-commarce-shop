@@ -5,21 +5,17 @@ info:
   version: 1.0.0
 
 paths:
-  /:
+  /upload-product:
     post:
+      summary: Upload a new product
       responses:
         default:
           description: Default response
       security:
         - cognito: []
       x-amazon-apigateway-integration:
-        uri: ${post_integration_uri}
-        responses:
-          default:
-            statusCode: 200
-        passthroughBehavior: when_no_match
+        uri: ${upload_product_lambda_uri}
         httpMethod: POST
-        contentHandling: CONVERT_TO_TEXT
         type: aws_proxy
         payloadFormatVersion: "2.0"
         timeoutInMillis: 12000
@@ -50,15 +46,3 @@ x-amazon-apigateway-cors:
     - "*"
   allowOrigins:
     - "*"
-
-# Default route ($default in API Gateway V2)
-x-amazon-apigateway-any-method:
-  x-amazon-apigateway-integration:
-    uri: ${default_integration_uri}
-    responses:
-      default:
-        statusCode: 200
-    passthroughBehavior: when_no_match
-    httpMethod: ANY
-    type: aws_proxy
-    payloadFormatVersion: "2.0"

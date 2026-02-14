@@ -46,14 +46,18 @@ module "api_gateway" {
 
   # OpenAPI specification
   body = templatefile("${path.module}/api.yaml", {
-    post_integration_uri    = "arn:aws:lambda:eu-west-1:052235179155:function:my-function"
-    default_integration_uri = "arn:aws:lambda:eu-west-1:052235179155:function:my-default-function"
-    cognito_audience        = var.cognito_user_pool_client_id
-    cognito_issuer          = "https://${var.cognito_user_pool_endpoint}"
+    cognito_audience          = var.cognito_user_pool_client_id
+    cognito_issuer            = "https://${var.cognito_user_pool_endpoint}"
+    upload_product_lambda_uri = var.upload_product_lambda_invoke_arn
   })
 
   tags = {
     Environment = var.Environment
     Terraform   = "true"
   }
+}
+
+output "api_execution_arn" {
+  description = "The execution ARN of the HTTP API Gateway"
+  value       = module.api_gateway.api_execution_arn
 }
