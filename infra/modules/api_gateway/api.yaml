@@ -12,7 +12,8 @@ paths:
         "200":
           description: OK
       security:
-        - cognito_auth: [] 
+        - custom_lambda_auth: [] 
+      x-required-groups: ["admin"]
       x-amazon-apigateway-integration:
         uri: ${upload_product_lambda_uri}
         httpMethod: POST
@@ -21,12 +22,12 @@ paths:
 
 components:
   securitySchemes:
-    cognito_auth:
+    custom_lambda_auth:
       type: apiKey
       name: Authorization
       in: header
-      x-amazon-apigateway-authtype: "cognito_user_pools"
+      x-amazon-apigateway-authtype: "authorizer"
       x-amazon-apigateway-authorizer:
-        type: "cognito_user_pools"
-        providerARNs:
-          - "${cognito_user_pool_arn}"
+        authorizerUri: ${authorizer_lambda_invoke_arn}
+        authorizerResultTtlInSeconds: 300
+        type: token
