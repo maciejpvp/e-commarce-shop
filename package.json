@@ -1,9 +1,15 @@
 {
   "dependencies": {
-    "aws-lambda": "^1.0.7"
+    "@aws-sdk/client-dynamodb": "^3.992.0",
+    "@aws-sdk/lib-dynamodb": "^3.992.0",
+    "aws-lambda": "^1.0.7",
+    "joi": "^18.0.2"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.160",
-    "esbuild": "^0.27.3"
+    "@types/node": "^25.2.3",
+    "esbuild": "^0.27.3",
+    "i": "^0.3.7",
+    "npm": "^11.10.0"
   }
 }

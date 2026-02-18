@@ -1,7 +1,7 @@
 resource "aws_cognito_user_pool" "main" {
   name = "e-commarce-shop-pool"
 
-  # 1. Enforce email as the primary identifier (prevents duplicates)
+  # Enforce email as the primary identifier (prevents duplicates)
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
 
@@ -9,24 +9,94 @@ resource "aws_cognito_user_pool" "main" {
     minimum_length = 8
   }
 
-  # 2. Configure how the verification is sent
+  lambda_config {
+    pre_sign_up       = var.pre_sign_up_lambda_arn
+    post_confirmation = var.post_confirmation_lambda_arn
+  }
+
+  # Configure how the verification is sent
   verification_message_template {
     default_email_option = "CONFIRM_WITH_CODE"
     email_message        = "Your verification code is {####}."
     email_subject        = "Verify your email for E-commerce Shop"
   }
 
-  # 3. Schema settings
+  # --- Schema Definition ---
+  # Email
   schema {
     attribute_data_type      = "String"
     developer_only_attribute = false
-    mutable                  = true
     name                     = "email"
     required                 = true
 
     string_attribute_constraints {
       min_length = 1
-      max_length = 2048
+      max_length = 100
+    }
+  }
+
+  // First name (given_name)
+  schema {
+    attribute_data_type = "String"
+    name                = "given_name"
+    required            = true
+    mutable             = true
+
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 100
+    }
+  }
+
+  # 3. Last Name (family_name)
+  schema {
+    attribute_data_type = "String"
+    name                = "family_name"
+    required            = true
+    mutable             = true
+
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 100
+    }
+  }
+
+  # 4. Phone Number
+  schema {
+    attribute_data_type = "String"
+    name                = "phone_number"
+    required            = true
+    mutable             = true
+
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 15
+    }
+  }
+
+  // Birthdate
+  schema {
+    attribute_data_type = "String"
+    name                = "birthdate"
+    required            = true
+    mutable             = true
+
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 10
+    }
+  }
+
+  // Gender
+  schema {
+    attribute_data_type = "String"
+    name                = "gender"
+    required            = true
+    mutable             = true
+
+    string_attribute_constraints {
+      min_length = 1
+      max_length = 32
     }
   }
 }

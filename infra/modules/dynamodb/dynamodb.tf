@@ -57,3 +57,8 @@ module "dynamodb_table" {
     Terraform   = "true"
   }
 }
+
+locals {
+  dynamodb_table_name = module.dynamodb_table.dynamodb_table_id
+  dynamodb_table_arn  = module.dynamodb_table.dynamodb_table_arn
+}

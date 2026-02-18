@@ -1,6 +1,7 @@
 # Local .terraform directories
 **/.terraform/*
 node_modules/
+dist/
 *.zip
 
 # .tfstate files

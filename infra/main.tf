@@ -1,7 +1,9 @@
 module "cognito" {
   source = "./modules/cognito"
 
-  Environment = var.Environment
+  Environment                  = var.Environment
+  post_confirmation_lambda_arn = module.post_confirmation_lambda.post_confirmation_lambda_arn
+  pre_sign_up_lambda_arn       = module.pre_sign_up_lambda.pre_sign_up_lambda_arn
 }
 
 module "lambda_product_upload" {
@@ -9,6 +11,24 @@ module "lambda_product_upload" {
 
   Environment               = var.Environment
   api_gateway_execution_arn = module.api_gateway.api_execution_arn
+}
+
+module "post_confirmation_lambda" {
+  source = "./modules/post_confirmation_lambda"
+
+  Environment         = var.Environment
+  user_pool_arn       = module.cognito.cognito_user_pool_arn
+  dynamodb_table_name = module.dynamodb.dynamodb_table_name
+  dynamodb_table_arn  = module.dynamodb.dynamodb_table_arn
+}
+
+module "pre_sign_up_lambda" {
+  source = "./modules/pre_sign_up_lambda"
+
+  Environment         = var.Environment
+  user_pool_arn       = module.cognito.cognito_user_pool_arn
+  dynamodb_table_name = module.dynamodb.dynamodb_table_name
+  dynamodb_table_arn  = module.dynamodb.dynamodb_table_arn
 }
 
 module "api_gateway" {

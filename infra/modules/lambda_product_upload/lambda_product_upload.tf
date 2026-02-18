@@ -1,4 +1,4 @@
-# --- IAM Role for Lambda ---
+# IAM Role for Lambda
 resource "aws_iam_role" "lambda_exec" {
   name = "e-commarce-shop-upload-product-role-${var.Environment}"
 
@@ -26,16 +26,22 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# --- Lambda Function ---
+# Lambda Function
+data "external" "ensure_dist" {
+  program = ["bash", "-c", "if [ ! -s ${path.module}/dist/index.mjs ]; then mkdir -p ${path.module}/dist && cd ${path.module}/../../.. && npx esbuild src/upload_product/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=infra/modules/lambda_product_upload/dist/index.mjs > /dev/null 2>&1; fi && echo '{\"status\": \"ok\"}'"]
+}
 
 resource "null_resource" "build_lambda" {
   triggers = {
-    src_hash = filesha256("${path.module}/../../../src/upload_product/index.ts")
+    src_hash    = filesha256("${path.module}/../../../src/upload_product/index.ts")
+    dist_exists = fileexists("${path.module}/dist/index.mjs")
   }
 
   provisioner "local-exec" {
     command = "cd ${path.module}/../../.. && npx esbuild src/upload_product/index.ts --bundle --platform=node --target=node20 --format=esm --outfile=infra/modules/lambda_product_upload/dist/index.mjs"
   }
+
+  depends_on = [data.external.ensure_dist]
 }
 
 data "archive_file" "upload_product" {
@@ -62,7 +68,7 @@ resource "aws_lambda_function" "upload_product" {
   }
 }
 
-# --- API Gateway Permission ---
+# API Gateway Permission
 resource "aws_lambda_permission" "apigw" {
   statement_id  = "AllowAPIGatewayInvoke"
   action        = "lambda:InvokeFunction"
