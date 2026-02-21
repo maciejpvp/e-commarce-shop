@@ -7,9 +7,26 @@ module "upload_product_lambda" {
   handler       = "index.handler"
   timeout       = 10
 
-  esbuild_format   = "esm"
-  esbuild_target   = "node20"
-  output_extension = ".mjs"
+  environment_variables = {
+    BUCKET_NAME = var.bucket_name
+    TABLE_NAME  = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action   = ["s3:PutObject"]
+      Effect   = "Allow"
+      Resource = ["${var.bucket_arn}/*"]
+    },
+    {
+      Action = [
+        "dynamodb:PutItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+
+    }
+  ]
 
   allowed_triggers = {
     APIGateway = {

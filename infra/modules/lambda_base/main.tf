@@ -33,38 +33,40 @@ resource "aws_iam_role_policy" "extra" {
 
   policy = jsonencode({
     Version   = "2012-10-17"
-    Statement = var.extra_policy_statements
+    Statement = [for s in var.extra_policy_statements : { for k, v in s : k => v if v != null }]
   })
 }
 
 locals {
   source_file        = var.source_file != "" ? var.source_file : "${path.module}/dist/${var.function_name}/index${var.output_extension}"
   relative_dist_path = replace(local.source_file, "${path.module}/", "")
-}
 
-data "external" "ensure_dist" {
-  program = ["bash", "-c", "if [ ! -s ${local.source_file} ]; then mkdir -p ${dirname(local.source_file)} && cd ${path.module}/../../.. && npx esbuild ${var.entry_point} --bundle --platform=node --target=${var.esbuild_target} --format=${var.esbuild_format} --minify --outfile=infra/modules/lambda_base/${local.relative_dist_path} > /dev/null 2>&1; fi && echo '{\"status\": \"ok\"}'"]
+  project_root = "${path.module}/../../.."
+  all_src_hash = sha256(join("", [
+    for f in fileset(local.project_root, "src/**/*.{ts,js,json}") : filesha256("${local.project_root}/${f}")
+  ]))
 }
 
 resource "null_resource" "build" {
   triggers = {
-    src_hash    = filesha256("${path.module}/../../../${var.entry_point}")
-    dist_exists = fileexists(local.source_file)
+    src_hash = local.all_src_hash
   }
 
   provisioner "local-exec" {
-    command = "cd ${path.module}/../../.. && npx esbuild ${var.entry_point} --bundle --platform=node --target=${var.esbuild_target} --format=${var.esbuild_format} --minify --outfile=infra/modules/lambda_base/${local.relative_dist_path}"
+    command = "cd ${local.project_root} && npx esbuild ${var.entry_point} --bundle --platform=node --target=${var.esbuild_target} --format=${var.esbuild_format} --minify --outfile=infra/modules/lambda_base/${local.relative_dist_path}"
   }
-
-  depends_on = [data.external.ensure_dist]
 }
 
 data "archive_file" "zip" {
   type        = "zip"
   source_file = local.source_file
   output_path = "${dirname(local.source_file)}/package.zip"
-  depends_on  = [null_resource.build]
+
+  # Ważne: archive_file musi czekać na zakończenie builda
+  depends_on = [null_resource.build]
 }
+
+# ... reszta zasobu aws_lambda_function pozostaje bez zmian
 
 resource "aws_lambda_function" "this" {
   function_name    = "${var.function_name}-${var.environment}"

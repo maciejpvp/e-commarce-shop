@@ -77,13 +77,19 @@
 - PK: PRODUCT#<product_id>
 - SK: METADATA
 - Attributes: 
-  - name, description
-  - price (Integer - Cents)
-  - stock (Integer)
-  - images: [ { url, is_main } ]
-  - created_at, version
-  - gsi1pk: CATEGORY#<category_id>
-  - gsi1sk: PRICE#<zero-padded-price>#<product_id> (Enables price-range queries & sort within category)
+  - name,
+  - description,
+  - price (Integer - Cents),
+  - stock (Integer),
+  - media: [ { type, url, is_main } ],
+  - created_at,
+  - version,
+
+### PRODUCT CATEGORY
+- PK: PRODUCT#<product_id>
+- SK: CATEGORY#<category_id>
+- gsi1pk: CATEGORY#<category_id>
+- gsi1sk: PRICE#<zero-padded-price>#<product_id> 
 
 ### PRODUCT COMMENT
 - PK: PRODUCT#<product_id>
