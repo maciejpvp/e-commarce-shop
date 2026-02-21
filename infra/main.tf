@@ -75,4 +75,6 @@ module "cloudfront" {
   media_bucket_id          = module.s3_product_media.bucket_id
   media_bucket_domain_name = module.s3_product_media.domain_name
   media_bucket_arn         = module.s3_product_media.bucket_arn
+  api_gateway_domain       = module.api_gateway.api_endpoint_domain
+  api_gateway_stage        = module.api_gateway.stage_name
 }

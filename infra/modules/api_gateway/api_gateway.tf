@@ -78,3 +78,13 @@ output "api_execution_arn" {
   description = "The execution ARN of the REST API Gateway"
   value       = aws_api_gateway_rest_api.this.execution_arn
 }
+
+output "api_endpoint_domain" {
+  description = "The domain name of the API Gateway endpoint"
+  value       = "${aws_api_gateway_rest_api.this.id}.execute-api.eu-central-1.amazonaws.com"
+}
+
+output "stage_name" {
+  description = "The stage name of the API Gateway"
+  value       = aws_api_gateway_stage.this.stage_name
+}
