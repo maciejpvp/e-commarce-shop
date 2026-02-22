@@ -19,6 +19,26 @@ paths:
         httpMethod: POST
         type: aws_proxy
         timeoutInMillis: 12000
+  /update-product/{productId}:
+    patch:
+      summary: Update an existing product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+      security:
+        - custom_lambda_auth: []
+      x-required-groups: ["admin"]
+      x-amazon-apigateway-integration:
+        uri: ${update_product_lambda_uri}
+        httpMethod: POST
+        type: aws_proxy
+        timeoutInMillis: 12000
 
 components:
   securitySchemes:

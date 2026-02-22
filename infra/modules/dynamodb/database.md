@@ -81,7 +81,7 @@
   - description,
   - price (Integer - Cents),
   - stock (Integer),
-  - media: [ { type, url, is_main } ],
+  - media: [ { type, key, isMain } ],
   - created_at,
   - version,
 

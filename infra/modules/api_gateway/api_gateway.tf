@@ -18,6 +18,7 @@ locals {
     cognito_audience             = var.cognito_user_pool_client_id
     cognito_issuer               = "https://${var.cognito_user_pool_endpoint}"
     upload_product_lambda_uri    = var.upload_product_lambda_invoke_arn
+    update_product_lambda_uri    = var.update_product_lambda_invoke_arn
     cognito_user_pool_arn        = var.cognito_user_pool_arn
     authorizer_lambda_invoke_arn = aws_lambda_function.authorizer.invoke_arn
   })

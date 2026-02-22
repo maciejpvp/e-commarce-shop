@@ -1,24 +1,9 @@
-export type MediaType = {
-    type: "image/" | "video/";
-    id: string;
-    isMain: boolean;
-}
-
 export type PresignedPost = {
     uploadUrl: string;
     fields: string;
     key: string;
     type: "image/" | "video/";
     isMain: boolean;
-}
-
-export type UploadProductEvent = {
-    name: string;
-    price: number;
-    description: string;
-    stock: number;
-    categories: string[];
-    media: MediaType[];
 }
 
 export type ProductMetadata = {
@@ -28,7 +13,7 @@ export type ProductMetadata = {
     description: string;
     price: number;
     stock: number;
-    media: { type: "image/" | "video/"; key: string; isMain: boolean }[];
+    media: PresignedPost[];
     created_at: number;
     version: number;
 }
@@ -39,3 +24,4 @@ export type ProductCategory = {
     gsi1pk: string;
     gsi1sk: string;
 }
+

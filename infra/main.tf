@@ -21,6 +21,15 @@ module "lambda_product_upload" {
   table_arn                 = module.dynamodb.dynamodb_table_arn
 }
 
+module "lambda_product_update" {
+  source = "./modules/lambda_product_update"
+
+  Environment               = var.Environment
+  api_gateway_execution_arn = module.api_gateway.api_execution_arn
+  table_name                = module.dynamodb.dynamodb_table_name
+  table_arn                 = module.dynamodb.dynamodb_table_arn
+}
+
 module "post_confirmation_lambda" {
   source = "./modules/post_confirmation_lambda"
 
@@ -49,6 +58,7 @@ module "api_gateway" {
   cognito_user_pool_endpoint       = module.cognito.cognito_user_pool_endpoint
   cognito_user_pool_arn            = module.cognito.cognito_user_pool_arn
   upload_product_lambda_invoke_arn = module.lambda_product_upload.lambda_invoke_arn
+  update_product_lambda_invoke_arn = module.lambda_product_update.lambda_invoke_arn
 }
 
 // --- DATABASE ---

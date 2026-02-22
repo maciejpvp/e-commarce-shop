@@ -25,7 +25,11 @@ export const handler = async (
             description: validatedBody.description,
             price: validatedBody.price,
             stock: validatedBody.stock,
-            media: presignedPosts,
+            media: presignedPosts.map((post) => ({
+                type: post.type,
+                key: post.key,
+                isMain: post.isMain,
+            })),
             created_at: Date.now(),
             version: 1,
         };
