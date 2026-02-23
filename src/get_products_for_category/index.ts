@@ -2,22 +2,29 @@ import { getProductDetails, getProductsByCategory } from "./db";
 import { validateGetProductsForCategory } from "./schema";
 
 export const handler = async (event: any) => {
-    console.log(event);
+    try {
+        const pathParameters = event.pathParameters || {};
 
-    const body = event.body ? JSON.parse(event.body) : {};
-    const validatedAttributes = validateGetProductsForCategory(body);
-    const category = validatedAttributes.category;
+        const validatedAttributes = validateGetProductsForCategory(pathParameters);
+        const category = validatedAttributes.category;
 
-    const products = await getProductsByCategory(category);
+        const products = await getProductsByCategory(category);
 
-    const productIds = products.map((product) => product.PK.split("#")[1]);
+        const productIds = products.map((product) => product.PK.split("#")[1]);
 
-    const productDetails = await Promise.all(
-        productIds.map((productId) => getProductDetails(productId))
-    );
+        const productDetails = await Promise.all(
+            productIds.map((productId) => getProductDetails(productId))
+        );
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ products: productDetails }),
-    };
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ products: productDetails }),
+        };
+    } catch (error: any) {
+        console.error('Error getting products:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ message: "Internal server error" }),
+        };
+    }
 };

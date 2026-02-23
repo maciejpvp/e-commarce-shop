@@ -39,9 +39,15 @@ paths:
         httpMethod: POST
         type: aws_proxy
         timeoutInMillis: 12000
-  /get-products-for-category:
-    post:
+  /get-products-for-category/{category}:
+    get:
       summary: Get products for a category
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "200":
           description: OK
