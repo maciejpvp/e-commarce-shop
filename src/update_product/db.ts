@@ -10,6 +10,7 @@ export interface UpdateProductParams {
     updateExpression: string;
     expressionAttributeNames: Record<string, string>;
     expressionAttributeValues: Record<string, any>;
+    conditionExpression: string;
 }
 
 export async function updateProductInDynamoDB({
@@ -17,6 +18,7 @@ export async function updateProductInDynamoDB({
     updateExpression,
     expressionAttributeNames,
     expressionAttributeValues,
+    conditionExpression,
 }: UpdateProductParams) {
     const command = new UpdateCommand({
         TableName: tableName,
@@ -27,7 +29,7 @@ export async function updateProductInDynamoDB({
         UpdateExpression: updateExpression,
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
-        ConditionExpression: "attribute_exists(PK)",
+        ConditionExpression: conditionExpression,
         ReturnValues: "ALL_NEW",
     });
 

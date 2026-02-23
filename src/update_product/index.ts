@@ -19,8 +19,9 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
         const {
             updateExpression,
             expressionAttributeNames,
-            expressionAttributeValues
-        } = buildDynamicUpdateExpression(validatedAttributes);
+            expressionAttributeValues,
+            conditionExpression,
+        } = buildDynamicUpdateExpression(validatedAttributes, validatedAttributes.version);
 
         console.log(`Updating product ${productId} with expression: ${updateExpression}`);
 
@@ -29,6 +30,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
             updateExpression,
             expressionAttributeNames,
             expressionAttributeValues,
+            conditionExpression,
         });
 
         return {

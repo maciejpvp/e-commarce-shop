@@ -1,11 +1,3 @@
-export type PresignedPost = {
-    uploadUrl: string;
-    fields: string;
-    key: string;
-    type: "image/" | "video/";
-    isMain: boolean;
-}
-
 export type ProductMetadata = {
     PK: string;
     SK: string;
@@ -13,7 +5,7 @@ export type ProductMetadata = {
     description: string;
     price: number;
     stock: number;
-    media: PresignedPost[];
+    media: { type: "image/" | "video/"; key: string; isMain: boolean }[];
     created_at: number;
     version: number;
 }
@@ -24,4 +16,3 @@ export type ProductCategory = {
     gsi1pk: string;
     gsi1sk: string;
 }
-

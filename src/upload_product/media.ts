@@ -1,11 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { generatePresignedPost } from '../utils/generatePresignedPOST';
-import { MediaType, PresignedPost } from './types';
+import { MediaType, PresignedPostResponse } from './types';
 
 const bucketName = process.env.BUCKET_NAME!;
 
-export async function generatePresignedPostsForMedia(media: MediaType[], productId: string): Promise<PresignedPost[]> {
-    const presignedPosts: PresignedPost[] = [];
+export async function generatePresignedPostsForMedia(media: MediaType[], productId: string): Promise<PresignedPostResponse[]> {
+    const presignedPosts: PresignedPostResponse[] = [];
     for (const mediaItem of media) {
         const key = `products/${productId}/raw/${uuidv4()}`;
 

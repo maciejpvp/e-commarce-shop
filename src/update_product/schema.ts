@@ -1,6 +1,22 @@
 import Joi from 'joi';
 
-export const updateProductSchema = Joi.object({
+type SchemaType = {
+    version: number,
+    name?: string,
+    price?: number,
+    description?: string,
+    stock?: number,
+    media?: {
+        uploadUrl: string,
+        fields: string,
+        key: string,
+        type: string,
+        isMain: boolean,
+    }[],
+}
+
+export const updateProductSchema = Joi.object<SchemaType>({
+    version: Joi.number().required(),
     name: Joi.string().min(3).max(100),
     price: Joi.number().min(0),
     description: Joi.string().min(10).max(1000),
@@ -14,7 +30,7 @@ export const updateProductSchema = Joi.object({
     })),
 }).min(1); // At least one attribute must be provided
 
-export function validateUpdateProduct(body: any) {
+export function validateUpdateProduct(body: any): SchemaType {
     const { error, value } = updateProductSchema.validate(body, {
         allowUnknown: false // Block unknown attributes
     });

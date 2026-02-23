@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { validateProductSchema } from './schema';
 import { generatePresignedPostsForMedia } from './media';
 import { uploadMetadataToDynamoDB, uploadCategoryToDynamoDB } from './repository';
-import { ProductCategory, ProductMetadata } from './types';
+import { ProductCategory, ProductMetadata } from '../types';
 
 export const handler = async (
     event: APIGatewayProxyEventV2
