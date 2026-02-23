@@ -15,12 +15,13 @@ locals {
   # 2. Render the body for API Gateway deployment
   # This depends on the authorizer ARN, which depends on security_mapping.
   rendered_body = templatefile("${path.module}/api.yaml", {
-    cognito_audience             = var.cognito_user_pool_client_id
-    cognito_issuer               = "https://${var.cognito_user_pool_endpoint}"
-    upload_product_lambda_uri    = var.upload_product_lambda_invoke_arn
-    update_product_lambda_uri    = var.update_product_lambda_invoke_arn
-    cognito_user_pool_arn        = var.cognito_user_pool_arn
-    authorizer_lambda_invoke_arn = aws_lambda_function.authorizer.invoke_arn
+    cognito_audience                     = var.cognito_user_pool_client_id
+    cognito_issuer                       = "https://${var.cognito_user_pool_endpoint}"
+    cognito_user_pool_arn                = var.cognito_user_pool_arn
+    authorizer_lambda_invoke_arn         = var.authorizer_lambda_invoke_arn
+    upload_product_lambda_uri            = var.upload_product_lambda_invoke_arn
+    update_product_lambda_uri            = var.update_product_lambda_invoke_arn
+    get_products_for_category_lambda_uri = var.get_products_for_category_lambda_invoke_arn
   })
 
   api_spec = yamldecode(local.rendered_body)
@@ -88,4 +89,8 @@ output "api_endpoint_domain" {
 output "stage_name" {
   description = "The stage name of the API Gateway"
   value       = aws_api_gateway_stage.this.stage_name
+}
+
+output "security_mapping" {
+  value = local.security_mapping
 }

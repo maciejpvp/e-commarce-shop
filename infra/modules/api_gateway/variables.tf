@@ -17,6 +17,11 @@ variable "cognito_user_pool_arn" {
   type        = string
 }
 
+variable "authorizer_lambda_invoke_arn" {
+  description = "The invoke ARN of the authorizer Lambda function"
+  type        = string
+}
+
 variable "upload_product_lambda_invoke_arn" {
   description = "The invoke ARN of the upload_product Lambda function"
   type        = string
@@ -24,5 +29,10 @@ variable "upload_product_lambda_invoke_arn" {
 
 variable "update_product_lambda_invoke_arn" {
   description = "The invoke ARN of the update_product Lambda function"
+  type        = string
+}
+
+variable "get_products_for_category_lambda_invoke_arn" {
+  description = "The invoke ARN of the get_products_for_category Lambda function"
   type        = string
 }

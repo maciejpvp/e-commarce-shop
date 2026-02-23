@@ -39,6 +39,19 @@ paths:
         httpMethod: POST
         type: aws_proxy
         timeoutInMillis: 12000
+  /get-products-for-category:
+    post:
+      summary: Get products for a category
+      responses:
+        "200":
+          description: OK
+      security:
+        - custom_lambda_auth: [] 
+      x-amazon-apigateway-integration:
+        uri: ${get_products_for_category_lambda_uri}
+        httpMethod: POST
+        type: aws_proxy
+        timeoutInMillis: 12000
 
 components:
   securitySchemes:
