@@ -38,6 +38,7 @@ module "api_gateway" {
   update_product_lambda_invoke_arn            = module.lambdas.update_product_lambda_invoke_arn
   authorizer_lambda_invoke_arn                = module.lambdas.authorizer_lambda_invoke_arn
   get_products_for_category_lambda_invoke_arn = module.lambdas.get_products_for_category_lambda_invoke_arn
+  add_to_cart_lambda_invoke_arn               = module.lambdas.add_to_cart_lambda_invoke_arn
 }
 
 // --- DATABASE ---

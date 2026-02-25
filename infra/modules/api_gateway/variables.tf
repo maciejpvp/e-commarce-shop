@@ -36,3 +36,8 @@ variable "get_products_for_category_lambda_invoke_arn" {
   description = "The invoke ARN of the get_products_for_category Lambda function"
   type        = string
 }
+
+variable "add_to_cart_lambda_invoke_arn" {
+  description = "The invoke ARN of the add_to_cart Lambda function"
+  type        = string
+}

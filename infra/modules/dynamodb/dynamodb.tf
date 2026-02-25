@@ -5,6 +5,8 @@ module "dynamodb_table" {
   hash_key  = "PK"
   range_key = "SK"
 
+  deletion_protection_enabled = false
+
   attributes = [
     {
       name = "PK"

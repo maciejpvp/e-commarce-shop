@@ -16,8 +16,6 @@ export const handler = async (
 
         const presignedPosts = await generatePresignedPostsForMedia(validatedBody.media, productId);
 
-        console.log("Presigned posts: ", presignedPosts);
-
         const productMetadata: ProductMetadata = {
             PK: `PRODUCT#${productId}`,
             SK: 'METADATA',
@@ -40,9 +38,6 @@ export const handler = async (
             gsi1pk: `CATEGORY#${category}`,
             gsi1sk: `PRICE#${validatedBody.price}#${productId}`,
         }));
-
-        console.log("Product metadata: ", productMetadata);
-        console.log("Product categories: ", productCategories);
 
         await uploadMetadataToDynamoDB(productMetadata);
         await uploadCategoryToDynamoDB(productCategories);
