@@ -32,3 +32,8 @@ output "post_confirmation_lambda_arn" {
 output "authorizer_lambda_invoke_arn" {
   value = module.authorizer.lambda_invoke_arn
 }
+
+// Checkout
+output "validate_cart_lambda_invoke_arn" {
+  value = module.validate_cart_lambda.lambda_invoke_arn
+}

@@ -29,14 +29,18 @@ export const handler = async (event: APIGatewayTokenAuthorizerEvent): Promise<AP
         const requiredGroups = resourceMap[resourceKey] || [];
         const isAuthorized = requiredGroups.length === 0 || requiredGroups.some(group => groups.includes(group));
 
-        return generatePolicy(payload.sub as string, isAuthorized ? 'Allow' : 'Deny', methodArn);
+        return generatePolicy(payload.sub as string, isAuthorized ? 'Allow' : 'Deny', methodArn, {
+            sub: payload.sub as string,
+            email: payload.email as string || "",
+            groups: JSON.stringify(groups)
+        });
     } catch (err) {
         console.error("Token verification failed:", err);
         return generatePolicy('user', 'Deny', event.methodArn);
     }
 };
 
-const generatePolicy = (principalId: string, effect: 'Allow' | 'Deny', resource: string): APIGatewayAuthorizerResult => {
+const generatePolicy = (principalId: string, effect: 'Allow' | 'Deny', resource: string, context?: Record<string, string | number | boolean>): APIGatewayAuthorizerResult => {
     return {
         principalId,
         policyDocument: {
@@ -49,5 +53,6 @@ const generatePolicy = (principalId: string, effect: 'Allow' | 'Deny', resource:
                 },
             ],
         },
+        context
     };
 };

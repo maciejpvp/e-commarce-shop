@@ -66,6 +66,7 @@ paths:
           description: OK
       security:
         - custom_lambda_auth: [] 
+      x-required-groups: []
       x-amazon-apigateway-integration:
         uri: ${add_to_cart_lambda_uri}
         httpMethod: POST
@@ -79,6 +80,7 @@ paths:
           description: OK
       security:
         - custom_lambda_auth: [] 
+      x-required-groups: ["admin"]
       x-amazon-apigateway-integration:
         uri: ${create_coupon_lambda_uri}
         httpMethod: POST

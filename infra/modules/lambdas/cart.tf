@@ -13,7 +13,7 @@ module "add_to_cart_lambda" {
 
   extra_policy_statements = [
     {
-      Action   = ["dynamodb:PutItem"]
+      Action   = ["dynamodb:PutItem", "dynamodb:GetItem"]
       Effect   = "Allow"
       Resource = [var.table_arn]
     },

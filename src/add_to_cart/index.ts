@@ -6,7 +6,7 @@ export const handler = async (event: any) => {
         const body = event.body ? JSON.parse(event.body) : {};
         const validatedBody = validateAddToCartSchema(body);
 
-        const userId = event.requestContext.authorizer.claims.sub;
+        const userId = event.requestContext.authorizer.sub;
         const productId = validatedBody.productId;
         const quantity = validatedBody.quantity;
 
