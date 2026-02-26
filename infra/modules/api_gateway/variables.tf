@@ -41,3 +41,8 @@ variable "add_to_cart_lambda_invoke_arn" {
   description = "The invoke ARN of the add_to_cart Lambda function"
   type        = string
 }
+
+variable "create_coupon_lambda_invoke_arn" {
+  description = "The invoke ARN of the create_coupon Lambda function"
+  type        = string
+}

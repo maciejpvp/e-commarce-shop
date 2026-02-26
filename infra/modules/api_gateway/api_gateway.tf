@@ -23,6 +23,7 @@ locals {
     update_product_lambda_uri            = var.update_product_lambda_invoke_arn
     get_products_for_category_lambda_uri = var.get_products_for_category_lambda_invoke_arn
     add_to_cart_lambda_uri               = var.add_to_cart_lambda_invoke_arn
+    create_coupon_lambda_uri             = var.create_coupon_lambda_invoke_arn
   })
 
   api_spec = yamldecode(local.rendered_body)

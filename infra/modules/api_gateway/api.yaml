@@ -71,6 +71,19 @@ paths:
         httpMethod: POST
         type: aws_proxy
         timeoutInMillis: 12000
+  /create-coupon:
+    post:
+      summary: Create a new coupon
+      responses:
+        "200":
+          description: OK
+      security:
+        - custom_lambda_auth: [] 
+      x-amazon-apigateway-integration:
+        uri: ${create_coupon_lambda_uri}
+        httpMethod: POST
+        type: aws_proxy
+        timeoutInMillis: 12000
 
 components:
   securitySchemes:
