@@ -1,0 +1,51 @@
+{
+    "Comment": "A description of my state machine",
+    "QueryLanguage": "JSONata",
+    "StartAt": "Validate Cart",
+    "States": {
+        "Validate Cart": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-validate-cart-dev:$LATEST",
+                "Payload": {
+                    "userId": "b39428d2-3061-707c-508a-fd75e9c11d91"
+                }
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                    ],
+                    "IntervalSeconds": 1,
+                    "MaxAttempts": 3,
+                    "BackoffRate": 2,
+                    "JitterStrategy": "FULL"
+                }
+            ],
+            "Next": "Choice"
+        },
+        "Choice": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Condition": "{% $states.input.statusCode = 200 %}",
+                    "Next": "Success"
+                }
+            ],
+            "Default": "Fail"
+        },
+        "Success": {
+            "Type": "Succeed"
+        },
+        "Fail": {
+            "Type": "Fail",
+            "Error": "ValidationError",
+            "Cause": "The cart validation failed or returned a non-200 status."
+        }
+    }
+}

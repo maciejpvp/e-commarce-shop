@@ -3,9 +3,20 @@ import { TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 
 const tableName = process.env.TABLE_NAME!;
 
-export const handler = async (cartItems: any[], fullProducts: any[]) => {
+type EventProps = {
+    cartItems: any[];
+    fullProducts: any[];
+}
+
+export const handler = async (event: EventProps) => {
     try {
-        await reserveStock(cartItems, fullProducts);
+        const products = event.cartItems.map((item) => {
+            return {
+                productId: item.SK.split("#")[1],
+                quantity: item.quantity,
+            };
+        });
+        await reserveStock({ products });
         return {
             statusCode: 200,
             body: JSON.stringify({ message: "Stock reserved successfully" }),
@@ -19,37 +30,44 @@ export const handler = async (cartItems: any[], fullProducts: any[]) => {
     }
 }
 
-async function reserveStock(cartItems: any[], fullProducts: any[]) {
-    const transactItems = cartItems.map((item) => {
-        const productId = item.SK.split("#")[1];
-        // Find the matching product metadata to get the current version
-        const productMetadata = fullProducts.find(p => p.PK === `PRODUCT#${productId}`);
+type ReserveStockProps = {
+    products: {
+        productId: string;
+        quantity: number;
+    }[];
+}
 
-        if (!productMetadata) throw new Error(`Product ${productId} not found`);
-
+async function reserveStock({ products }: ReserveStockProps) {
+    const transactItems = products.map((item) => {
         return {
             Update: {
                 TableName: tableName,
                 Key: {
-                    PK: `PRODUCT#${productId}`,
+                    PK: `PRODUCT#${item.productId}`,
                     SK: "METADATA",
                 },
-                // Decrement stock and increment version
-                UpdateExpression: "SET stock = stock - :qty, version = version + :inc",
-                // Condition: Ensure enough stock exists AND version hasn't changed
-                ConditionExpression: "stock >= :qty AND version = :v",
+                UpdateExpression: "SET stock = stock - :qty",
+                ConditionExpression: "attribute_exists(PK) AND stock >= :qty",
                 ExpressionAttributeValues: {
-                    ":qty": item.quantity, // Assumes your cart item has a quantity attribute
-                    ":inc": 1,
-                    ":v": productMetadata.version,
+                    ":qty": item.quantity,
                 },
             },
         };
     });
 
-    const command = new TransactWriteCommand({
-        TransactItems: transactItems,
-    });
+    try {
+        await docClient.send(new TransactWriteCommand({ TransactItems: transactItems }));
+        return { success: true };
+    } catch (error: any) {
+        if (error.name === "TransactionCanceledException") {
+            const isOutOfStock = error.CancellationReasons?.some(
+                (r: any) => r.Code === "ConditionalCheckFailed"
+            );
 
-    await docClient.send(command);
+            if (isOutOfStock) {
+                throw new Error("One or more items are no longer available in the requested quantity.");
+            }
+        }
+        throw error;
+    }
 }

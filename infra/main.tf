@@ -25,6 +25,15 @@ module "lambdas" {
   security_mapping            = module.api_gateway.security_mapping # Assuming api_gateway still exports this or needs it
 }
 
+// --- CHECKOUT ---
+
+module "checkout" {
+  source = "./modules/checkout"
+
+  Environment              = var.Environment
+  validate_cart_lambda_arn = module.lambdas.validate_cart_lambda_invoke_arn
+}
+
 // --- API GATEWAY ---
 
 module "api_gateway" {
