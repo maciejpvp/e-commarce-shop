@@ -29,8 +29,12 @@ resource "aws_iam_role_policy" "sfn_lambda_policy" {
         Action = "lambda:InvokeFunction"
         Effect = "Allow"
         Resource = [
-          "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:e-commarce-shop-validate-cart-dev",
-          "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:e-commarce-shop-validate-cart-dev:*"
+          var.validate_cart_lambda_arn,
+          "${var.validate_cart_lambda_arn}:*",
+          var.reserve_stock_lambda_arn,
+          "${var.reserve_stock_lambda_arn}:*",
+          var.create_checkout_session_lambda_arn,
+          "${var.create_checkout_session_lambda_arn}:*",
         ]
       }
     ]

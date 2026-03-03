@@ -64,7 +64,7 @@
   - quantity (Integer)
   - price_at_purchase (Integer - Cents)
   - gsi1pk: PRODUCT#<product_id> (Inverted index: Find all orders for a product)
-  - gsi1sk: ORDER#<order_id>
+  - gsi1sk: ORDER#<created_at>#<order_id>
 - Note: Fetching an order with items requires two queries:
   1. `PK=USER#<user_id>, SK=ORDER#<created_at>#<order_id>` → order summary
   2. `PK=ORDER#<order_id>` → line items

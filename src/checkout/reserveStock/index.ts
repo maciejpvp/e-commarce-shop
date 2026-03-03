@@ -1,26 +1,26 @@
+import { CartItem } from "../../types";
 import { docClient } from "../../utils/docClient";
 import { TransactWriteCommand } from "@aws-sdk/lib-dynamodb";
 
 const tableName = process.env.TABLE_NAME!;
 
+
+
 type EventProps = {
-    cartItems: any[];
-    fullProducts: any[];
-}
+    statusCode: number;
+    body: {
+        cartItems: CartItem[];
+        fullPrice: number;
+    };
+};
 
 export const handler = async (event: EventProps) => {
     try {
-        const products = event.cartItems.map((item) => {
-            return {
-                productId: item.SK.split("#")[1],
-                quantity: item.quantity,
-            };
-        });
+        console.log("@@@@ EVENT: ", event)
+        const products = event.body.cartItems;
+
         await reserveStock({ products });
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: "Stock reserved successfully" }),
-        };
+        return event;
     } catch (error) {
         console.log("@@@@ ERROR: ", error)
         return {

@@ -8,6 +8,19 @@ module "cognito" {
   pre_sign_up_lambda_arn       = module.lambdas.pre_sign_up_lambda_arn
 }
 
+// Stripe Event Bus
+module "stripe_integration" {
+  source               = "./modules/stripe_events"
+  stripe_bus_name      = "aws.partner/stripe.com/ed_test_61UG0BdejRE6EOpYr16UDTGI8oNJFHJ3ItuBm1HWaJpI"
+  lambda_function_name = module.lambdas.order_payment_reconciler_lambda_function_name
+  lambda_arn           = module.lambdas.order_payment_reconciler_lambda_arn
+}
+
+import {
+  to = module.stripe_integration.aws_cloudwatch_event_bus.stripe_bus
+  id = "aws.partner/stripe.com/ed_test_61UG0BdejRE6EOpYr16UDTGI8oNJFHJ3ItuBm1HWaJpI"
+}
+
 // --- LAMBDAS ---
 
 module "lambdas" {
@@ -30,8 +43,10 @@ module "lambdas" {
 module "checkout" {
   source = "./modules/checkout"
 
-  Environment              = var.Environment
-  validate_cart_lambda_arn = module.lambdas.validate_cart_lambda_invoke_arn
+  Environment                        = var.Environment
+  validate_cart_lambda_arn           = module.lambdas.validate_cart_lambda_invoke_arn
+  reserve_stock_lambda_arn           = module.lambdas.reserve_stock_lambda_invoke_arn
+  create_checkout_session_lambda_arn = module.lambdas.create_checkout_session_lambda_invoke_arn
 }
 
 // --- API GATEWAY ---

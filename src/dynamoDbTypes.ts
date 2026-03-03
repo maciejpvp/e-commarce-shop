@@ -70,6 +70,10 @@ export interface OrderSummary extends BaseItem {
     PK: `USER#${string}`;
     SK: `ORDER#${ISO8601}#${string}`;
     status: OrderStatus;
+    orderId: string;
+    sessionId: string;
+    sessionUrl: string;
+    token: string;
     total_amount: number;
     currency: string;
     shipping_address: string; // Address ID
@@ -81,6 +85,8 @@ export interface OrderItem extends BaseItem {
     product_name: string;
     quantity: number;
     price_at_purchase: number;
+    gsi1pk: string;
+    gsi1sk: string;
 }
 
 // --- 3. Product Related ---

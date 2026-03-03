@@ -34,13 +34,91 @@
             "Choices": [
                 {
                     "Condition": "{% $states.input.statusCode = 200 %}",
-                    "Next": "Success"
+                    "Next": "Reserve Stock"
                 }
             ],
             "Default": "Fail"
         },
+        "Reserve Stock": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-reserve-stock-dev:$LATEST",
+                "Payload": "{% $states.input %}"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                    ],
+                    "IntervalSeconds": 1,
+                    "MaxAttempts": 3,
+                    "BackoffRate": 2,
+                    "JitterStrategy": "FULL"
+                }
+            ],
+            "Next": "Choice (1)"
+        },
+        "Choice (1)": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Next": "Generate Checkout URL",
+                    "Condition": "{% $states.input.statusCode = 200 %}"
+                }
+            ],
+            "Default": "Fail (1)"
+        },
+        "Generate Checkout URL": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-create-checkout-session-dev:$LATEST",
+                "Payload": {
+                    "totalPrice": 5000,
+                    "token": "{% $states.context.Task.Token %}",
+                    "originalData": "{% $states.input %}"
+                }
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                    ],
+                    "IntervalSeconds": 1,
+                    "MaxAttempts": 3,
+                    "BackoffRate": 2,
+                    "JitterStrategy": "FULL"
+                }
+            ],
+            "Next": "Choice (2)"
+        },
+        "Choice (2)": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Next": "Success",
+                    "Condition": "{% $states.input.statusCode = 200 %}"
+                }
+            ],
+            "Default": "Fail (2)"
+        },
         "Success": {
             "Type": "Succeed"
+        },
+        "Fail (2)": {
+            "Type": "Fail"
+        },
+        "Fail (1)": {
+            "Type": "Fail"
         },
         "Fail": {
             "Type": "Fail",

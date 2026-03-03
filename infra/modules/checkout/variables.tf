@@ -5,3 +5,11 @@ variable "Environment" {
 variable "validate_cart_lambda_arn" {
   type = string
 }
+
+variable "reserve_stock_lambda_arn" {
+  type = string
+}
+
+variable "create_checkout_session_lambda_arn" {
+  type = string
+}

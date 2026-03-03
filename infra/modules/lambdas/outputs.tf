@@ -35,5 +35,25 @@ output "authorizer_lambda_invoke_arn" {
 
 // Checkout
 output "validate_cart_lambda_invoke_arn" {
-  value = module.validate_cart_lambda.lambda_invoke_arn
+  value = module.validate_cart_lambda.lambda_arn
+}
+
+output "reserve_stock_lambda_invoke_arn" {
+  value = module.reserve_stock_lambda.lambda_arn
+}
+
+output "create_checkout_session_lambda_invoke_arn" {
+  value = module.create_checkout_session_lambda.lambda_arn
+}
+
+output "order_payment_reconciler_lambda_function_name" {
+  value = module.order_payment_reconciler_lambda.lambda_function_name
+}
+
+output "order_payment_reconciler_lambda_invoke_arn" {
+  value = module.order_payment_reconciler_lambda.lambda_invoke_arn
+}
+
+output "order_payment_reconciler_lambda_arn" {
+  value = module.order_payment_reconciler_lambda.lambda_arn
 }
