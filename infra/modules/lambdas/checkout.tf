@@ -118,3 +118,52 @@ module "order_payment_reconciler_lambda" {
     }
   ]
 }
+
+module "unreserve_stock_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-unreserve-stock"
+  environment   = var.Environment
+  entry_point   = "src/unreserve_stock/index.ts"
+  handler       = "index.handler"
+  timeout       = 30
+
+  environment_variables = {
+    TABLE_NAME = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "dynamodb:Query",
+        "dynamodb:TransactWriteItems"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+    }
+  ]
+}
+
+module "finalize_order_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-finalize-order"
+  environment   = var.Environment
+  entry_point   = "src/checkout/finalize_order/index.ts"
+  handler       = "index.handler"
+  timeout       = 30
+
+  environment_variables = {
+    TABLE_NAME = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "dynamodb:UpdateItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+    }
+  ]
+}

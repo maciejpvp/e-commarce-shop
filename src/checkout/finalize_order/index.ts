@@ -26,6 +26,13 @@ export const handler = async (event: EventType) => {
         await handleFailure(order);
     }
 
+    const orderId = order.PK.split("#")[1];
+
+    return {
+        status,
+        orderId
+    }
+
 }
 
 const handleSuccess = async (order: Order) => {

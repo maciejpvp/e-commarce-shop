@@ -99,6 +99,30 @@
                     "JitterStrategy": "FULL"
                 }
             ],
+            "Next": "Finalize Order"
+        },
+        "Finalize Order": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-finalize-order-dev:$LATEST",
+                "Payload": "{% $states.input %}"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                    ],
+                    "IntervalSeconds": 1,
+                    "MaxAttempts": 3,
+                    "BackoffRate": 2,
+                    "JitterStrategy": "FULL"
+                }
+            ],
             "Next": "Choice (2)"
         },
         "Choice (2)": {
@@ -106,16 +130,37 @@
             "Choices": [
                 {
                     "Next": "Success",
-                    "Condition": "{% $states.input.statusCode = 200 %}"
+                    "Condition": "{% $states.input.status = \"SUCCESS\" %}"
                 }
             ],
-            "Default": "Fail (2)"
+            "Default": "Un Reserve the Stock"
         },
         "Success": {
             "Type": "Succeed"
         },
-        "Fail (2)": {
-            "Type": "Fail"
+        "Un Reserve the Stock": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-unreserve-stock-dev:$LATEST",
+                "Payload": "{% $states.input %}"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                    ],
+                    "IntervalSeconds": 1,
+                    "MaxAttempts": 3,
+                    "BackoffRate": 2,
+                    "JitterStrategy": "FULL"
+                }
+            ],
+            "End": true
         },
         "Fail (1)": {
             "Type": "Fail"

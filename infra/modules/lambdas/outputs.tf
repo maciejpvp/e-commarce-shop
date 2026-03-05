@@ -57,3 +57,11 @@ output "order_payment_reconciler_lambda_invoke_arn" {
 output "order_payment_reconciler_lambda_arn" {
   value = module.order_payment_reconciler_lambda.lambda_arn
 }
+
+output "unreserve_stock_lambda_invoke_arn" {
+  value = module.unreserve_stock_lambda.lambda_arn
+}
+
+output "finalize_order_lambda_invoke_arn" {
+  value = module.finalize_order_lambda.lambda_arn
+}

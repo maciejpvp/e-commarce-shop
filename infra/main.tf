@@ -47,6 +47,8 @@ module "checkout" {
   validate_cart_lambda_arn           = module.lambdas.validate_cart_lambda_invoke_arn
   reserve_stock_lambda_arn           = module.lambdas.reserve_stock_lambda_invoke_arn
   create_checkout_session_lambda_arn = module.lambdas.create_checkout_session_lambda_invoke_arn
+  finalize_order_lambda_arn          = module.lambdas.finalize_order_lambda_invoke_arn
+  unreserve_stock_lambda_arn         = module.lambdas.unreserve_stock_lambda_invoke_arn
 }
 
 // --- API GATEWAY ---

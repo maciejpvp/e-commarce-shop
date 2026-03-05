@@ -35,6 +35,10 @@ resource "aws_iam_role_policy" "sfn_lambda_policy" {
           "${var.reserve_stock_lambda_arn}:*",
           var.create_checkout_session_lambda_arn,
           "${var.create_checkout_session_lambda_arn}:*",
+          var.finalize_order_lambda_arn,
+          "${var.finalize_order_lambda_arn}:*",
+          var.unreserve_stock_lambda_arn,
+          "${var.unreserve_stock_lambda_arn}:*",
         ]
       }
     ]

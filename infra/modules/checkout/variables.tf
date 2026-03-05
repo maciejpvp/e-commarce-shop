@@ -13,3 +13,11 @@ variable "reserve_stock_lambda_arn" {
 variable "create_checkout_session_lambda_arn" {
   type = string
 }
+
+variable "finalize_order_lambda_arn" {
+  type = string
+}
+
+variable "unreserve_stock_lambda_arn" {
+  type = string
+}
