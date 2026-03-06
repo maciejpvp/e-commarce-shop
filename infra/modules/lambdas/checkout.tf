@@ -167,3 +167,30 @@ module "finalize_order_lambda" {
     }
   ]
 }
+
+module "cleanup_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-cleanup"
+  environment   = var.Environment
+  entry_point   = "src/checkout/cleanup/index.ts"
+  handler       = "index.handler"
+  timeout       = 30
+
+  environment_variables = {
+    TABLE_NAME = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:BatchWriteItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+    }
+  ]
+}
+

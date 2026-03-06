@@ -65,3 +65,7 @@ output "unreserve_stock_lambda_invoke_arn" {
 output "finalize_order_lambda_invoke_arn" {
   value = module.finalize_order_lambda.lambda_arn
 }
+
+output "cleanup_lambda_invoke_arn" {
+  value = module.cleanup_lambda.lambda_arn
+}

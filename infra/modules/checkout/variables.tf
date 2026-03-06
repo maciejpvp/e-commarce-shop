@@ -21,3 +21,7 @@ variable "finalize_order_lambda_arn" {
 variable "unreserve_stock_lambda_arn" {
   type = string
 }
+
+variable "cleanup_lambda_arn" {
+  type = string
+}

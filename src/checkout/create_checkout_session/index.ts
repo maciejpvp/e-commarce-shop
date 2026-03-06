@@ -38,46 +38,59 @@ export const handler = async (event: Event) => {
     const PK = `USER#${userId}`;
     const SK: OrderSummary['SK'] = `ORDER#${createdAt}#${orderId}`;
 
-    const session = await createSession(totalPrice, PK, SK);
+    try {
+        const session = await createSession(totalPrice, PK, SK);
 
-    const object: OrderSummary = {
-        PK,
-        SK,
-        total_amount: totalPrice,
-        currency: "usd",
-        shipping_address: "Placeholder",
-        status: OrderStatus.PENDING,
-        orderId,
-        sessionId: session.id,
-        sessionUrl: session.url as string,
-        token
-    }
-
-    await saveToDynamoDB(object);
-
-    const orderItems: OrderItem[] = originalData.body.cartItems.map((item) => {
-        return {
-            PK: `ORDER#${orderId}`,
-            SK: `ITEM#${item.productId}`,
-            product_name: item.name,
-            quantity: item.quantity,
-            price_at_purchase: item.price,
-            gsi1pk: `PRODUCT#${item.productId}`,
-            gsi1sk: `ORDER#${createdAt}#${orderId}`,
+        const object: OrderSummary = {
+            PK,
+            SK,
+            total_amount: totalPrice,
+            currency: "usd",
+            shipping_address: "Placeholder",
+            status: OrderStatus.PENDING,
+            orderId,
+            sessionId: session.id,
+            sessionUrl: session.url as string,
+            token
         }
-    })
 
-    for (const orderItem of orderItems) {
-        await saveOrderItemToDynamoDB(orderItem);
+        await saveToDynamoDB(object);
+
+        const orderItems: OrderItem[] = originalData.body.cartItems.map((item) => {
+            return {
+                PK: `ORDER#${orderId}`,
+                SK: `ITEM#${item.productId}`,
+                product_name: item.name,
+                quantity: item.quantity,
+                price_at_purchase: item.price,
+                gsi1pk: `PRODUCT#${item.productId}`,
+                gsi1sk: `ORDER#${createdAt}#${orderId}`,
+            }
+        })
+
+        for (const orderItem of orderItems) {
+            await saveOrderItemToDynamoDB(orderItem);
+        }
+
+        return {
+            statusCode: 200,
+            body: {
+                sessionUrl: session.url,
+                token,
+            },
+        };
+    } catch (error: unknown) {
+        console.error("@@@Error Occured!!!: ", error)
+
+        throw new Error(JSON.stringify({
+            message: error instanceof Error ? error.message : "Unknown error",
+            cleanupData: {
+                PK,
+                SK,
+                orderId
+            }
+        }))
     }
-
-    return {
-        statusCode: 200,
-        body: {
-            sessionUrl: session.url,
-            token,
-        },
-    };
 }
 
 export const createSession = async (price: number, PK: string, SK: string) => {

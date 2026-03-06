@@ -99,7 +99,42 @@
                     "JitterStrategy": "FULL"
                 }
             ],
-            "Next": "Finalize Order"
+            "Next": "Finalize Order",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+                        "States.ALL"
+                    ],
+                    "Next": "CleanUp Order Record"
+                }
+            ]
+        },
+        "CleanUp Order Record": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-cleanup-dev:$LATEST",
+                "Payload": "{% $states.input %}"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                    ],
+                    "IntervalSeconds": 1,
+                    "MaxAttempts": 3,
+                    "BackoffRate": 2,
+                    "JitterStrategy": "FULL"
+                }
+            ],
+            "Next": "Fail (2)"
+        },
+        "Fail (2)": {
+            "Type": "Fail"
         },
         "Finalize Order": {
             "Type": "Task",
@@ -160,7 +195,10 @@
                     "JitterStrategy": "FULL"
                 }
             ],
-            "End": true
+            "Next": "Fail (3)"
+        },
+        "Fail (3)": {
+            "Type": "Fail"
         },
         "Fail (1)": {
             "Type": "Fail"
