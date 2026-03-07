@@ -69,3 +69,7 @@ output "finalize_order_lambda_invoke_arn" {
 output "cleanup_lambda_invoke_arn" {
   value = module.cleanup_lambda.lambda_arn
 }
+
+output "send_receipt_lambda_arn" {
+  value = module.send_receipt_lambda.lambda_arn
+}

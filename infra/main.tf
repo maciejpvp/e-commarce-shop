@@ -50,6 +50,7 @@ module "checkout" {
   finalize_order_lambda_arn          = module.lambdas.finalize_order_lambda_invoke_arn
   unreserve_stock_lambda_arn         = module.lambdas.unreserve_stock_lambda_invoke_arn
   cleanup_lambda_arn                 = module.lambdas.cleanup_lambda_invoke_arn
+  send_receipt_lambda_arn            = module.lambdas.send_receipt_lambda_arn
 }
 
 // --- API GATEWAY ---

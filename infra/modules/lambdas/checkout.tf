@@ -194,3 +194,36 @@ module "cleanup_lambda" {
   ]
 }
 
+module "send_receipt_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-send-receipt"
+  environment   = var.Environment
+  entry_point   = "src/checkout/send_receipt/index.ts"
+  handler       = "index.handler"
+  timeout       = 30
+
+  environment_variables = {
+    TABLE_NAME = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "dynamodb:GetItem",
+        "dynamodb:Query",
+        "dynamodb:BatchGetItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+    },
+    {
+      Action = [
+        "ses:SendEmail",
+        "ses:SendRawEmail"
+      ]
+      Effect   = "Allow"
+      Resource = ["*"]
+    }
+  ]
+}

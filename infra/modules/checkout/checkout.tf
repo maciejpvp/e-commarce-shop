@@ -41,6 +41,8 @@ resource "aws_iam_role_policy" "sfn_lambda_policy" {
           "${var.unreserve_stock_lambda_arn}:*",
           var.cleanup_lambda_arn,
           "${var.cleanup_lambda_arn}:*",
+          var.send_receipt_lambda_arn,
+          "${var.send_receipt_lambda_arn}:*",
         ]
       }
     ]

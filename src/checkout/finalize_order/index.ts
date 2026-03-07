@@ -26,11 +26,13 @@ export const handler = async (event: EventType) => {
         await handleFailure(order);
     }
 
-    const orderId = order.PK.split("#")[1];
+    const orderId = order.SK.split("#")[2];
+    const userId = order.PK.split("#")[1];
 
     return {
         status,
-        orderId
+        orderId,
+        userId
     }
 
 }

@@ -27,9 +27,9 @@
                     "JitterStrategy": "FULL"
                 }
             ],
-            "Next": "Choice"
+            "Next": "Is Cart Valid"
         },
-        "Choice": {
+        "Is Cart Valid": {
             "Type": "Choice",
             "Choices": [
                 {
@@ -37,7 +37,7 @@
                     "Next": "Reserve Stock"
                 }
             ],
-            "Default": "Fail"
+            "Default": "Invalid Cart"
         },
         "Reserve Stock": {
             "Type": "Task",
@@ -61,9 +61,9 @@
                     "JitterStrategy": "FULL"
                 }
             ],
-            "Next": "Choice (1)"
+            "Next": "Check Stock Availability"
         },
-        "Choice (1)": {
+        "Check Stock Availability": {
             "Type": "Choice",
             "Choices": [
                 {
@@ -71,7 +71,7 @@
                     "Condition": "{% $states.input.statusCode = 200 %}"
                 }
             ],
-            "Default": "Fail (1)"
+            "Default": "Not Enough Stock"
         },
         "Generate Checkout URL": {
             "Type": "Task",
@@ -131,9 +131,9 @@
                     "JitterStrategy": "FULL"
                 }
             ],
-            "Next": "Fail (2)"
+            "Next": "Fail: Checkout Generation"
         },
-        "Fail (2)": {
+        "Fail: Checkout Generation": {
             "Type": "Fail"
         },
         "Finalize Order": {
@@ -158,19 +158,43 @@
                     "JitterStrategy": "FULL"
                 }
             ],
-            "Next": "Choice (2)"
+            "Next": "Was Order Successful"
         },
-        "Choice (2)": {
+        "Was Order Successful": {
             "Type": "Choice",
             "Choices": [
                 {
-                    "Next": "Success",
+                    "Next": "Send Receipt To Email",
                     "Condition": "{% $states.input.status = \"SUCCESS\" %}"
                 }
             ],
             "Default": "Un Reserve the Stock"
         },
-        "Success": {
+        "Send Receipt To Email": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Output": "{% $states.result.Payload %}",
+            "Arguments": {
+                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-send-receipt-dev:$LATEST",
+                "Payload": "{% $states.input %}"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException",
+                        "Lambda.TooManyRequestsException"
+                    ],
+                    "IntervalSeconds": 1,
+                    "MaxAttempts": 3,
+                    "BackoffRate": 2,
+                    "JitterStrategy": "FULL"
+                }
+            ],
+            "Next": "Payment Accepted"
+        },
+        "Payment Accepted": {
             "Type": "Succeed"
         },
         "Un Reserve the Stock": {
@@ -195,15 +219,15 @@
                     "JitterStrategy": "FULL"
                 }
             ],
-            "Next": "Fail (3)"
+            "Next": "Payment Declined"
         },
-        "Fail (3)": {
+        "Payment Declined": {
             "Type": "Fail"
         },
-        "Fail (1)": {
+        "Not Enough Stock": {
             "Type": "Fail"
         },
-        "Fail": {
+        "Invalid Cart": {
             "Type": "Fail",
             "Error": "ValidationError",
             "Cause": "The cart validation failed or returned a non-200 status."

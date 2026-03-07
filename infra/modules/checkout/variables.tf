@@ -25,3 +25,7 @@ variable "unreserve_stock_lambda_arn" {
 variable "cleanup_lambda_arn" {
   type = string
 }
+
+variable "send_receipt_lambda_arn" {
+  type = string
+}
