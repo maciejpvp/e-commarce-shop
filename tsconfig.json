@@ -9,8 +9,10 @@
         "skipLibCheck": true,
         "outDir": "dist",
         "sourceMap": true,
+        "jsx": "react-jsx",
         "lib": [
-            "ES2022"
+            "ES2022",
+            "dom"
         ]
     },
     "include": [

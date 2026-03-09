@@ -1,9 +1,9 @@
 import { BatchGetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "../../utils/docClient";
 import { OrderItem, Product, UserProfile } from "../../dynamoDbTypes";
-import { generateReceiptHTML } from "./generateReceipt";
 import { sendEmail } from "../../utils/sendEmail";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
+import { generateReceiptHTML } from "./generateReceipt";
 
 const TABLE_NAME = process.env.TABLE_NAME!;
 
@@ -11,16 +11,13 @@ export const handler = async (event: any) => {
     const orderId = event.orderId;
     const userId = event.userId;
 
-    console.log("Order ID:", orderId);
-    console.log("User ID:", userId);
-
     const items = await getOrderItems(orderId);
     const productIds = items.map(item => item.SK.split("#")[1]);
-    console.log("Product IDs:", productIds);
     const products = await getProducts(productIds);
 
     if (products.length > 0) {
-        const htmlBody = generateReceiptHTML(products);
+        console.log({ items, products, orderId, userId })
+        const htmlBody = generateReceiptHTML(items, products, orderId);
         const email = await fetchUserEmail(userId);
         await sendEmail(email, htmlBody);
     }

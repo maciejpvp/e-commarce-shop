@@ -31,7 +31,7 @@ export const handler = async (event: Event) => {
 
     const orderId = uuidv4();
 
-    const userId = "123";
+    const userId = "d3b4d862-40a1-70c1-e9d9-b92fa3708cb0";
 
     const createdAt = new Date().toISOString();
 
