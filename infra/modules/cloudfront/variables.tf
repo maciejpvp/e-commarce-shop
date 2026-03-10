@@ -22,3 +22,9 @@ variable "api_gateway_stage" {
   description = "The stage name of the API Gateway"
   type        = string
 }
+
+variable "api_key" {
+  description = "The API Key for API Gateway"
+  type        = string
+  sensitive   = true
+}

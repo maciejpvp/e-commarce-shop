@@ -34,6 +34,11 @@ resource "aws_cloudfront_distribution" "main_distro" {
       origin_protocol_policy = "https-only"
       origin_ssl_protocols   = ["TLSv1.2"]
     }
+
+    custom_header {
+      name  = "x-api-key"
+      value = var.api_key
+    }
   }
 
   # Ordered cache behavior for S3 images

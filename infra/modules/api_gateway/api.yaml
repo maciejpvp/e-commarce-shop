@@ -22,8 +22,10 @@ paths:
       responses:
         "200":
           description: OK
+%{ if !ep.no_auth }
       security:
         - custom_lambda_auth: []
+%{ endif }
       x-required-groups: ${jsonencode(ep.permissions)}
       x-amazon-apigateway-integration:
         uri: ${ep.lambda}
@@ -32,8 +34,15 @@ paths:
         timeoutInMillis: 12000
 %{ endfor }
 
+security:
+  - api_key: []
+
 components:
   securitySchemes:
+    api_key:
+      type: apiKey
+      name: x-api-key
+      in: header
     custom_lambda_auth:
       type: apiKey
       name: Authorization

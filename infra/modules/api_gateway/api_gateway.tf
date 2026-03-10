@@ -49,10 +49,40 @@ resource "aws_api_gateway_stage" "this" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   stage_name    = "prod"
 
+
   tags = {
     Environment = var.Environment
     Terraform   = "true"
   }
+}
+
+resource "aws_api_gateway_api_key" "this" {
+  name = "e-commarce-shop-api-key"
+}
+
+resource "aws_api_gateway_usage_plan" "this" {
+  name = "e-commarce-shop-usage-plan"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.this.id
+    stage  = aws_api_gateway_stage.this.stage_name
+  }
+
+  quota_settings {
+    limit  = 500
+    period = "DAY"
+  }
+
+  throttle_settings {
+    burst_limit = 10
+    rate_limit  = 5
+  }
+}
+
+resource "aws_api_gateway_usage_plan_key" "this" {
+  key_id        = aws_api_gateway_api_key.this.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.this.id
 }
 
 resource "aws_cloudwatch_log_group" "api_gw" {
@@ -82,4 +112,10 @@ output "stage_name" {
 
 output "security_mapping" {
   value = local.security_mapping
+}
+
+output "api_key_value" {
+  description = "The value of the API Key"
+  value       = aws_api_gateway_api_key.this.value
+  sensitive   = true
 }

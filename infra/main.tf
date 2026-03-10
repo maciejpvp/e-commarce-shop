@@ -82,6 +82,7 @@ module "api_gateway" {
       type        = "GET"
       lambda      = module.lambdas.get_products_for_category_lambda_invoke_arn
       permissions = []
+      no_auth     = true
     },
     {
       endpoint    = "/cart"
@@ -136,4 +137,5 @@ module "cloudfront" {
   media_bucket_arn         = module.s3_product_media.bucket_arn
   api_gateway_domain       = module.api_gateway.api_endpoint_domain
   api_gateway_stage        = module.api_gateway.stage_name
+  api_key                  = module.api_gateway.api_key_value
 }

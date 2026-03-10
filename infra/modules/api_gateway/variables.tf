@@ -29,5 +29,6 @@ variable "endpoints" {
     type        = string
     lambda      = string
     permissions = list(string)
+    no_auth     = optional(bool, false)
   }))
 }
