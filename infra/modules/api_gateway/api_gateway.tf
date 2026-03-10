@@ -1,30 +1,17 @@
 locals {
-  # 1. Parse raw spec to get security mapping (breaks cycle)
-  # Security mapping does not contain template variables, so it's safe to parse raw.
-  raw_api_spec = yamldecode(file("${path.module}/api.yaml"))
+  # Map security rules based on the endpoints array
+  security_mapping = {
+    for ep in var.endpoints : "${upper(ep.type)}${ep.endpoint}" => ep.permissions
+  }
 
-  # Extract security mapping: "METHOD/path" -> ["group1", "group2"]
-  security_mapping = merge([
-    for path, methods in local.raw_api_spec.paths : {
-      for method, config in methods :
-      "${upper(method)}${path}" => lookup(config, "x-required-groups", [])
-      if method != "parameters"
-    }
-  ]...)
-
-  # 2. Render the body for API Gateway deployment
-  # This depends on the authorizer ARN, which depends on security_mapping.
   rendered_body = templatefile("${path.module}/api.yaml", {
-    cognito_audience                     = var.cognito_user_pool_client_id
-    cognito_issuer                       = "https://${var.cognito_user_pool_endpoint}"
-    cognito_user_pool_arn                = var.cognito_user_pool_arn
-    authorizer_lambda_invoke_arn         = var.authorizer_lambda_invoke_arn
-    upload_product_lambda_uri            = var.upload_product_lambda_invoke_arn
-    update_product_lambda_uri            = var.update_product_lambda_invoke_arn
-    get_products_for_category_lambda_uri = var.get_products_for_category_lambda_invoke_arn
-    add_to_cart_lambda_uri               = var.add_to_cart_lambda_invoke_arn
-    create_coupon_lambda_uri             = var.create_coupon_lambda_invoke_arn
+    cognito_audience             = var.cognito_user_pool_client_id
+    cognito_issuer               = "https://${var.cognito_user_pool_endpoint}"
+    cognito_user_pool_arn        = var.cognito_user_pool_arn
+    authorizer_lambda_invoke_arn = var.authorizer_lambda_invoke_arn
+    endpoints                    = var.endpoints
   })
+
 
   api_spec = yamldecode(local.rendered_body)
 }

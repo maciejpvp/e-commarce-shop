@@ -20,6 +20,10 @@ output "create_coupon_lambda_invoke_arn" {
   value = module.create_coupon_lambda.lambda_invoke_arn
 }
 
+output "get_cart_lambda_invoke_arn" {
+  value = module.get_cart_lambda.lambda_invoke_arn
+}
+
 // Auth Lambdas
 output "pre_sign_up_lambda_arn" {
   value = module.pre_sign_up_lambda.lambda_arn

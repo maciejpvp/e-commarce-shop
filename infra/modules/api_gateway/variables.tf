@@ -22,27 +22,12 @@ variable "authorizer_lambda_invoke_arn" {
   type        = string
 }
 
-variable "upload_product_lambda_invoke_arn" {
-  description = "The invoke ARN of the upload_product Lambda function"
-  type        = string
-}
-
-variable "update_product_lambda_invoke_arn" {
-  description = "The invoke ARN of the update_product Lambda function"
-  type        = string
-}
-
-variable "get_products_for_category_lambda_invoke_arn" {
-  description = "The invoke ARN of the get_products_for_category Lambda function"
-  type        = string
-}
-
-variable "add_to_cart_lambda_invoke_arn" {
-  description = "The invoke ARN of the add_to_cart Lambda function"
-  type        = string
-}
-
-variable "create_coupon_lambda_invoke_arn" {
-  description = "The invoke ARN of the create_coupon Lambda function"
-  type        = string
+variable "endpoints" {
+  description = "List of endpoints to configure in the API Gateway"
+  type = list(object({
+    endpoint    = string
+    type        = string
+    lambda      = string
+    permissions = list(string)
+  }))
 }
