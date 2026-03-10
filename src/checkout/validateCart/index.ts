@@ -55,7 +55,8 @@ export const handler = async ({ userId }: { userId: string }) => {
             statusCode: 200,
             body: {
                 cartItems: enrichedCartItems,
-                fullPrice
+                fullPrice,
+                userId
             },
         };
 

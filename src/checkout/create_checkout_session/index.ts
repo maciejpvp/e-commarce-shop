@@ -18,6 +18,7 @@ type Event = {
         body: {
             cartItems: CartItem[]
             fullPrice: number
+            userId: string
         }
     }
 }
@@ -31,11 +32,11 @@ export const handler = async (event: Event) => {
 
     const orderId = uuidv4();
 
-    const userId = "d3b4d862-40a1-70c1-e9d9-b92fa3708cb0";
+    const userId = event.originalData.body.userId;
 
     const createdAt = new Date().toISOString();
 
-    const PK = `USER#${userId}`;
+    const PK = `USER#${userId}` as OrderSummary['PK'];
     const SK: OrderSummary['SK'] = `ORDER#${createdAt}#${orderId}`;
 
     try {
