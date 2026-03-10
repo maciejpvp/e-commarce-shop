@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { validateUpdateProduct } from './schema';
 import { buildDynamicUpdateExpression } from './builder';
-import { updateProductInDynamoDB } from './db';
+import { updateProduct } from '../services/product';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
@@ -25,7 +25,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
 
         console.log(`Updating product ${productId} with expression: ${updateExpression}`);
 
-        const updatedAttributes = await updateProductInDynamoDB({
+        const updatedAttributes = await updateProduct({
             productId,
             updateExpression,
             expressionAttributeNames,

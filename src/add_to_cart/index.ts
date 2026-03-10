@@ -1,4 +1,4 @@
-import { addToCart, getPriceAtAdd } from "./db";
+import { addToCart, getProductPriceForCart } from "../services/cart";
 import { validateAddToCartSchema } from "./schema";
 
 export const handler = async (event: any) => {
@@ -10,7 +10,7 @@ export const handler = async (event: any) => {
         const productId = validatedBody.productId;
         const quantity = validatedBody.quantity;
 
-        const priceAtAdd = await getPriceAtAdd(productId);
+        const priceAtAdd = await getProductPriceForCart(productId);
 
         await addToCart({
             userId,
@@ -24,7 +24,7 @@ export const handler = async (event: any) => {
             body: JSON.stringify({ message: "Product added to cart successfully" }),
         };
     } catch (error) {
-        console.log("@@@@ ERROR: ", error)
+        console.log("@@@@ ERROR: ", error);
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid request body" }),

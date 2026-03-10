@@ -1,4 +1,4 @@
-import { createCoupon } from "./db";
+import { createCoupon } from "../services/coupon";
 import { validateCreateCouponSchema } from "./schema";
 
 export const handler = async (event: any) => {
@@ -13,10 +13,10 @@ export const handler = async (event: any) => {
             body: JSON.stringify({ message: "Coupon created successfully" }),
         };
     } catch (error) {
-        console.log("@@@@ ERROR: ", error)
+        console.log("@@@@ ERROR: ", error);
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid request body" }),
         };
     }
-}
+};

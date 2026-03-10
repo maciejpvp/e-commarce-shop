@@ -1,5 +1,5 @@
+import { deleteCartItem, updateCartItem } from "../services/cart";
 import { validateUpdateCartItemSchema } from "./schema";
-import { updateCartItem } from "./updateCartItem";
 
 export const handler = async (event: any) => {
     try {
@@ -10,17 +10,21 @@ export const handler = async (event: any) => {
         const productId = validatedBody.productId;
         const quantity = validatedBody.quantity;
 
-        await updateCartItem(userId, productId, quantity);
+        if (quantity <= 0) {
+            await deleteCartItem(userId, productId);
+        } else {
+            await updateCartItem(userId, productId, quantity);
+        }
 
         return {
             statusCode: 200,
             body: JSON.stringify({ message: "Cart item updated successfully" }),
         };
     } catch (error) {
-        console.log("@@@@ ERROR: ", error)
+        console.log("@@@@ ERROR: ", error);
         return {
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid request body" }),
         };
     }
-}
+};

@@ -1,93 +1,24 @@
-import { BatchGetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { docClient } from "../../utils/docClient";
-import { OrderItem, Product, UserProfile } from "../../dynamoDbTypes";
+import { OrderItem } from "../../dynamoDbTypes";
 import { sendEmail } from "../../utils/sendEmail";
-import { GetCommand } from "@aws-sdk/lib-dynamodb";
 import { generateReceiptHTML } from "./generateReceipt";
-
-const TABLE_NAME = process.env.TABLE_NAME!;
+import { getOrderItemsTyped } from "../../services/order";
+import { getProductsByIds } from "../../services/user";
+import { fetchUserEmail } from "../../services/user";
 
 export const handler = async (event: any) => {
     const orderId = event.orderId;
     const userId = event.userId;
 
-    const items = await getOrderItems(orderId);
-    const productIds = items.map(item => item.SK.split("#")[1]);
-    const products = await getProducts(productIds);
+    const items: OrderItem[] = await getOrderItemsTyped(orderId);
+    const productIds = items.map((item) => item.SK.split("#")[1]);
+    const products = await getProductsByIds(productIds);
 
     if (products.length > 0) {
-        console.log({ items, products, orderId, userId })
+        console.log({ items, products, orderId, userId });
         const htmlBody = generateReceiptHTML(items, products, orderId);
         const email = await fetchUserEmail(userId);
         await sendEmail(email, htmlBody);
     }
 
     console.log("Products:", products);
-
-}
-
-const getOrderItems = async (orderId: string) => {
-    const items: OrderItem[] = [];
-    let lastEvaluatedKey: any = undefined;
-
-    // Use a loop to handle pagination if an order has many items
-    do {
-        const response = await docClient.send(new QueryCommand({
-            TableName: TABLE_NAME,
-            KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
-            ExpressionAttributeValues: {
-                ":pk": `ORDER#${orderId}`,
-                ":sk": "ITEM#"
-            },
-            ExclusiveStartKey: lastEvaluatedKey
-        }));
-
-        if (response.Items) items.push(...(response.Items as OrderItem[]));
-        lastEvaluatedKey = response.LastEvaluatedKey;
-    } while (lastEvaluatedKey);
-
-    console.log("Items:", items);
-
-    return items;
 };
-
-const getProducts = async (productIds: string[]) => {
-    const uniqueIds = [...new Set(productIds)];
-
-    const keys = uniqueIds.map(id => ({
-        PK: `PRODUCT#${id}`,
-        SK: "METADATA"
-    }));
-    const response = await docClient.send(new BatchGetCommand({
-        RequestItems: {
-            [TABLE_NAME]: {
-                Keys: keys
-            }
-        }
-    }));
-
-    const products = (response.Responses?.[TABLE_NAME] || []) as Product[];
-
-    console.log("Products:", products);
-
-    return products;
-};
-
-const fetchUserEmail = async (userId: string): Promise<string> => {
-    const command = new GetCommand({
-        TableName: TABLE_NAME,
-        Key: {
-            PK: `USER#${userId}`,
-            SK: "PROFILE"
-        }
-    });
-
-    const response = await docClient.send(command);
-    const userProfile = response.Item as UserProfile;
-    if (!userProfile) {
-        throw new Error("User not found");
-    }
-    const email = userProfile.email;
-
-    return email;
-}

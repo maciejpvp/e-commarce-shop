@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
 import { validateProductSchema } from './schema';
 import { generatePresignedPostsForMedia } from './media';
-import { uploadMetadataToDynamoDB, uploadCategoryToDynamoDB } from './repository';
+import { uploadProductMetadata, uploadProductCategory } from '../services/product';
 import { ProductCategory, ProductMetadata } from '../types';
 
 export const handler = async (
@@ -39,8 +39,8 @@ export const handler = async (
             gsi1sk: `PRICE#${validatedBody.price}#${productId}`,
         }));
 
-        await uploadMetadataToDynamoDB(productMetadata);
-        await uploadCategoryToDynamoDB(productCategories);
+        await uploadProductMetadata(productMetadata);
+        await uploadProductCategory(productCategories);
 
         return {
             statusCode: 200,

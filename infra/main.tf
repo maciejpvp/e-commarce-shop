@@ -91,6 +91,12 @@ module "api_gateway" {
     },
     {
       endpoint    = "/cart"
+      type        = "PATCH"
+      lambda      = module.lambdas.update_cart_item_lambda_invoke_arn
+      permissions = []
+    },
+    {
+      endpoint    = "/cart"
       type        = "GET"
       lambda      = module.lambdas.get_cart_lambda_invoke_arn
       permissions = []

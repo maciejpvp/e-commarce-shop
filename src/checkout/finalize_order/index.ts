@@ -1,30 +1,22 @@
-import { UpdateCommand, UpdateCommandInput } from "@aws-sdk/lib-dynamodb";
-import { docClient } from "../../utils/docClient";
+import { updateOrderStatus } from "../../services/order";
 
 type Order = {
     PK: string;
     SK: string;
-}
+};
 
 type EventType = {
     status: "SUCCESS" | "FAILED";
     processedAt: string;
     order: Order;
-}
-
-const tableName = process.env.TABLE_NAME;
+};
 
 export const handler = async (event: EventType) => {
-
     const { status, order } = event;
 
     const isSuccess = status === "SUCCESS";
 
-    if (isSuccess) {
-        await handleSuccess(order);
-    } else {
-        await handleFailure(order);
-    }
+    await updateOrderStatus(order, isSuccess ? "PAID" : "CANCELLED");
 
     const orderId = order.SK.split("#")[2];
     const userId = order.PK.split("#")[1];
@@ -32,49 +24,6 @@ export const handler = async (event: EventType) => {
     return {
         status,
         orderId,
-        userId
-    }
-
-}
-
-const handleSuccess = async (order: Order) => {
-    const commandInput: UpdateCommandInput = {
-        TableName: tableName,
-        Key: {
-            PK: order.PK,
-            SK: order.SK
-        },
-        UpdateExpression: "set #s = :s",
-        ExpressionAttributeNames: {
-            "#s": "status"
-        },
-        ExpressionAttributeValues: {
-            ":s": "PAID"
-        }
-    }
-
-    const command = new UpdateCommand(commandInput);
-
-    await docClient.send(command);
-}
-
-const handleFailure = async (order: Order) => {
-    const commandInput: UpdateCommandInput = {
-        TableName: tableName,
-        Key: {
-            PK: order.PK,
-            SK: order.SK
-        },
-        UpdateExpression: "set #s = :s",
-        ExpressionAttributeNames: {
-            "#s": "status"
-        },
-        ExpressionAttributeValues: {
-            ":s": "CANCELLED"
-        }
-    }
-
-    const command = new UpdateCommand(commandInput);
-
-    await docClient.send(command);
-}
+        userId,
+    };
+};

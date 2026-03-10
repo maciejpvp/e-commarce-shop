@@ -1,12 +1,9 @@
 import Stripe from 'stripe';
 import { getStripe } from '../../utils/getStripe';
 import { v4 as uuidv4 } from 'uuid';
-import { PutCommand, PutCommandInput } from '@aws-sdk/lib-dynamodb';
-import { docClient } from '../../utils/docClient';
+import { saveOrderSummary, saveOrderItem } from '../../services/order';
 import { OrderItem, OrderStatus, OrderSummary } from '../../dynamoDbTypes';
 import { CartItem } from '../../types';
-
-const tableName = process.env.TABLE_NAME;
 
 let stripeInstance: Stripe | null = null;
 
@@ -16,24 +13,22 @@ type Event = {
     token: string;
     originalData: {
         body: {
-            cartItems: CartItem[]
-            fullPrice: number
-            userId: string
-        }
-    }
-}
+            cartItems: CartItem[];
+            fullPrice: number;
+            userId: string;
+        };
+    };
+};
 
 export const handler = async (event: Event) => {
     if (!stripeInstance) {
         stripeInstance = await getStripe();
     }
-    console.log("event: ", event)
+    console.log("event: ", event);
     const { totalPrice, token, originalData } = event;
 
     const orderId = uuidv4();
-
     const userId = event.originalData.body.userId;
-
     const createdAt = new Date().toISOString();
 
     const PK = `USER#${userId}` as OrderSummary['PK'];
@@ -52,25 +47,23 @@ export const handler = async (event: Event) => {
             orderId,
             sessionId: session.id,
             sessionUrl: session.url as string,
-            token
-        }
+            token,
+        };
 
-        await saveToDynamoDB(object);
+        await saveOrderSummary(object);
 
-        const orderItems: OrderItem[] = originalData.body.cartItems.map((item) => {
-            return {
-                PK: `ORDER#${orderId}`,
-                SK: `ITEM#${item.productId}`,
-                product_name: item.name,
-                quantity: item.quantity,
-                price_at_purchase: item.price,
-                gsi1pk: `PRODUCT#${item.productId}`,
-                gsi1sk: `ORDER#${createdAt}#${orderId}`,
-            }
-        })
+        const orderItems: OrderItem[] = originalData.body.cartItems.map((item) => ({
+            PK: `ORDER#${orderId}`,
+            SK: `ITEM#${item.productId}`,
+            product_name: item.name,
+            quantity: item.quantity,
+            price_at_purchase: item.price,
+            gsi1pk: `PRODUCT#${item.productId}`,
+            gsi1sk: `ORDER#${createdAt}#${orderId}`,
+        }));
 
         for (const orderItem of orderItems) {
-            await saveOrderItemToDynamoDB(orderItem);
+            await saveOrderItem(orderItem);
         }
 
         return {
@@ -81,18 +74,14 @@ export const handler = async (event: Event) => {
             },
         };
     } catch (error: unknown) {
-        console.error("@@@Error Occured!!!: ", error)
+        console.error("@@@Error Occured!!!: ", error);
 
         throw new Error(JSON.stringify({
             message: error instanceof Error ? error.message : "Unknown error",
-            cleanupData: {
-                PK,
-                SK,
-                orderId
-            }
-        }))
+            cleanupData: { PK, SK, orderId },
+        }));
     }
-}
+};
 
 export const createSession = async (price: number, PK: string, SK: string) => {
     if (stripeInstance === null) {
@@ -105,39 +94,14 @@ export const createSession = async (price: number, PK: string, SK: string) => {
             {
                 price_data: {
                     currency: 'usd',
-                    product_data: {
-                        name: 'Your Product',
-                    },
+                    product_data: { name: 'Your Product' },
                     unit_amount: price,
                 },
                 quantity: 1,
             },
         ],
-        metadata: {
-            PK,
-            SK
-        }
+        metadata: { PK, SK },
     });
 
     return session;
-}
-
-const saveToDynamoDB = async (object: OrderSummary) => {
-    const commandInput: PutCommandInput = {
-        TableName: tableName,
-        Item: object
-    }
-
-    const command = new PutCommand(commandInput);
-    await docClient.send(command);
-}
-
-const saveOrderItemToDynamoDB = async (orderItem: OrderItem) => {
-    const commandInput: PutCommandInput = {
-        TableName: tableName,
-        Item: orderItem
-    }
-
-    const command = new PutCommand(commandInput);
-    await docClient.send(command);
-}
+};

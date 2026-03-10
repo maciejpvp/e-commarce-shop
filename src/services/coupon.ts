@@ -3,7 +3,15 @@ import { docClient } from "../utils/docClient";
 
 const tableName = process.env.TABLE_NAME!;
 
-export const createCoupon = async (coupon: any) => {
+type CouponInput = {
+    code: string;
+    discountType: string;
+    discountValue: number;
+    expiryDate: number; // Unix timestamp
+    isActive: boolean;
+};
+
+export const createCoupon = async (coupon: CouponInput): Promise<void> => {
     const item = {
         PK: `COUPON${coupon.code}`,
         SK: `METADATA`,
@@ -15,7 +23,7 @@ export const createCoupon = async (coupon: any) => {
         version: 1,
         gsi1pk: `COUPON_STATUS#${coupon.isActive ? "ACTIVE" : "INACTIVE"}`,
         gsi1sk: `EXPIRY#${coupon.expiryDate}#${coupon.code}`,
-    }
+    };
 
     const commandInput: PutCommandInput = {
         TableName: tableName,
@@ -23,4 +31,4 @@ export const createCoupon = async (coupon: any) => {
     };
     const command = new PutCommand(commandInput);
     await docClient.send(command);
-}
+};

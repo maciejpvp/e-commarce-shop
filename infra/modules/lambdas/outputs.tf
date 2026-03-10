@@ -16,6 +16,10 @@ output "add_to_cart_lambda_invoke_arn" {
   value = module.add_to_cart_lambda.lambda_invoke_arn
 }
 
+output "update_cart_item_lambda_invoke_arn" {
+  value = module.update_cart_item_lambda.lambda_invoke_arn
+}
+
 output "create_coupon_lambda_invoke_arn" {
   value = module.create_coupon_lambda.lambda_invoke_arn
 }
