@@ -3,7 +3,7 @@ module "upload_product_lambda" {
 
   function_name = "e-commarce-shop-upload-product"
   environment   = var.Environment
-  entry_point   = "src/upload_product/index.ts"
+  entry_point   = "src/product/upload_product/index.ts"
   handler       = "index.handler"
   timeout       = 10
 
@@ -40,7 +40,7 @@ module "update_product_lambda" {
 
   function_name = "e-commarce-shop-update-product"
   environment   = var.Environment
-  entry_point   = "src/update_product/index.ts"
+  entry_point   = "src/product/update_product/index.ts"
   handler       = "index.handler"
   timeout       = 10
 
@@ -71,7 +71,7 @@ module "get_products_for_category_lambda" {
 
   function_name = "e-commarce-shop-get-products-for-category"
   environment   = var.Environment
-  entry_point   = "src/get_products_for_category/index.ts"
+  entry_point   = "src/product/get_products_for_category/index.ts"
   handler       = "index.handler"
   timeout       = 10
 
@@ -102,7 +102,7 @@ module "create_coupon_lambda" {
 
   function_name = "e-commarce-shop-create-coupon"
   environment   = var.Environment
-  entry_point   = "src/create_coupon/index.ts"
+  entry_point   = "src/coupon/create_coupon/index.ts"
   handler       = "index.handler"
   timeout       = 10
 

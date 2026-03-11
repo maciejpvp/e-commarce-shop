@@ -124,7 +124,7 @@ module "unreserve_stock_lambda" {
 
   function_name = "e-commarce-shop-unreserve-stock"
   environment   = var.Environment
-  entry_point   = "src/unreserve_stock/index.ts"
+  entry_point   = "src/checkout/unreserve_stock/index.ts"
   handler       = "index.handler"
   timeout       = 30
 

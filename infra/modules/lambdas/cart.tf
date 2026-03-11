@@ -3,7 +3,7 @@ module "add_to_cart_lambda" {
 
   function_name = "e-commarce-shop-add-to-cart"
   environment   = var.Environment
-  entry_point   = "src/add_to_cart/index.ts"
+  entry_point   = "src/cart/add_to_cart/index.ts"
   handler       = "index.handler"
   timeout       = 10
 
@@ -32,7 +32,7 @@ module "update_cart_item_lambda" {
 
   function_name = "e-commarce-shop-update-cart-item"
   environment   = var.Environment
-  entry_point   = "src/update_cart_item/index.ts"
+  entry_point   = "src/cart/update_cart_item/index.ts"
   handler       = "index.handler"
   timeout       = 10
 
@@ -64,7 +64,7 @@ module "get_cart_lambda" {
 
   function_name = "e-commarce-shop-get-cart"
   environment   = var.Environment
-  entry_point   = "src/get_cart/index.ts"
+  entry_point   = "src/cart/get_cart/index.ts"
   handler       = "index.handler"
   timeout       = 10
 

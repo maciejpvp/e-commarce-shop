@@ -85,13 +85,13 @@ module "api_gateway" {
       no_auth     = true
     },
     {
-      endpoint    = "/cart"
+      endpoint    = "/cart/add"
       type        = "POST"
       lambda      = module.lambdas.add_to_cart_lambda_invoke_arn
       permissions = []
     },
     {
-      endpoint    = "/cart"
+      endpoint    = "/cart/update"
       type        = "PATCH"
       lambda      = module.lambdas.update_cart_item_lambda_invoke_arn
       permissions = []

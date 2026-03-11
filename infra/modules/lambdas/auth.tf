@@ -3,7 +3,7 @@ module "pre_sign_up_lambda" {
 
   function_name = "e-commerce-pre-sign-up"
   environment   = var.Environment
-  entry_point   = "src/pre_sign_up/index.ts"
+  entry_point   = "src/auth/pre_sign_up/index.ts"
   handler       = "index.handler"
   timeout       = 10
 
@@ -41,7 +41,7 @@ module "post_confirmation_lambda" {
 
   function_name = "e-commerce-post-confirmation"
   environment   = var.Environment
-  entry_point   = "src/post_confirmation_lambda/index.ts"
+  entry_point   = "src/auth/post_confirmation/index.ts"
   handler       = "index.handler"
   timeout       = 10
 

@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { generatePresignedPost } from '../utils/generatePresignedPOST';
+import { generatePresignedPost } from '../../utils/generatePresignedPOST';
 import { MediaType, PresignedPostResponse } from './types';
 
 const bucketName = process.env.BUCKET_NAME!;

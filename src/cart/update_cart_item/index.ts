@@ -1,4 +1,4 @@
-import { deleteCartItem, updateCartItem } from "../services/cart";
+import { deleteCartItem, updateCartItem } from "../../services/cart";
 import { validateUpdateCartItemSchema } from "./schema";
 
 export const handler = async (event: any) => {

@@ -3,7 +3,7 @@ module "authorizer" {
 
   function_name = "e-commarce-shop-authorizer"
   environment   = var.Environment
-  entry_point   = "src/authorizers/group_authorizer.ts"
+  entry_point   = "src/auth/authorizers/group_authorizer.ts"
   handler       = "index.handler"
   timeout       = 10
   runtime       = "nodejs22.x" # Authorizer was nodejs22.x in original

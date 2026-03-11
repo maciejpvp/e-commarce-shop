@@ -1,4 +1,4 @@
-import { addToCart, getProductPriceForCart } from "../services/cart";
+import { addToCart, getProductPriceForCart } from "../../services/cart";
 import { validateAddToCartSchema } from "./schema";
 
 export const handler = async (event: any) => {

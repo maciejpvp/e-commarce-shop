@@ -1,4 +1,4 @@
-import { createCoupon } from "../services/coupon";
+import { createCoupon } from "../../services/coupon";
 import { validateCreateCouponSchema } from "./schema";
 
 export const handler = async (event: any) => {

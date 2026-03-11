@@ -1,4 +1,4 @@
-import { fetchAllOrderItemsForUnreserve, unreserveStockTransaction } from "../services/order";
+import { fetchAllOrderItemsForUnreserve, unreserveStockTransaction } from "../../services/order";
 
 export const handler = async (event: any) => {
     if (event.isSuccess) return;

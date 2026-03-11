@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { validateUpdateProduct } from './schema';
 import { buildDynamicUpdateExpression } from './builder';
-import { updateProduct } from '../services/product';
+import { updateProduct } from '../../services/product';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
