@@ -23,12 +23,6 @@ variable "authorizer_lambda_invoke_arn" {
 }
 
 variable "endpoints" {
-  description = "List of endpoints to configure in the API Gateway"
-  type = list(object({
-    endpoint    = string
-    type        = string
-    lambda      = string
-    permissions = list(string)
-    no_auth     = optional(bool, false)
-  }))
+  description = "Arbitrarily nested map of endpoints to configure in the API Gateway"
+  type        = any
 }

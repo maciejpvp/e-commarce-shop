@@ -1,5 +1,6 @@
 import { validateGetProductsForCategory } from "./schema";
-import { getProductDetails, getProductsByCategory } from "../../services/product";
+import { getProductItem, getProductsByCategory } from "../../services/product";
+import { withCors } from "../../utils/cors";
 
 export const handler = async (event: any) => {
     try {
@@ -12,19 +13,17 @@ export const handler = async (event: any) => {
 
         const productIds = products.map((product) => product.PK.split("#")[1]);
 
-        const productDetails = await Promise.all(
-            productIds.map((productId) => getProductDetails(productId))
-        );
+        const productDetails = await getProductItem(productIds);
 
-        return {
+        return withCors({
             statusCode: 200,
             body: JSON.stringify({ products: productDetails }),
-        };
+        });
     } catch (error: any) {
         console.error('Error getting products:', error);
-        return {
+        return withCors({
             statusCode: 500,
             body: JSON.stringify({ message: "Internal server error" }),
-        };
+        });
     }
 };

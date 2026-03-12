@@ -11,6 +11,10 @@ output "get_products_for_category_lambda_invoke_arn" {
   value = module.get_products_for_category_lambda.lambda_invoke_arn
 }
 
+output "get_product_lambda_invoke_arn" {
+  value = module.get_product_lambda.lambda_invoke_arn
+}
+
 // Cart
 output "add_to_cart_lambda_invoke_arn" {
   value = module.add_to_cart_lambda.lambda_invoke_arn

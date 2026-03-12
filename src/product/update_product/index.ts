@@ -2,15 +2,16 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { validateUpdateProduct } from './schema';
 import { buildDynamicUpdateExpression } from './builder';
 import { updateProduct } from '../../services/product';
+import { withCors } from '../../utils/cors';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
     try {
         const productId = event.pathParameters?.productId;
         if (!productId) {
-            return {
+            return withCors({
                 statusCode: 400,
                 body: JSON.stringify({ message: "Product ID is required" }),
-            };
+            });
         }
 
         const body = event.body ? JSON.parse(event.body) : {};
@@ -33,37 +34,37 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
             conditionExpression,
         });
 
-        return {
+        return withCors({
             statusCode: 200,
             body: JSON.stringify({
                 message: "Product updated successfully",
                 updatedAttributes,
             }),
-        };
+        });
 
     } catch (error: any) {
         console.error('Error updating product:', error);
 
         if (error.isJoi) {
-            return {
+            return withCors({
                 statusCode: 400,
                 body: JSON.stringify({
                     message: "Validation error",
                     details: error.details.map((d: any) => d.message)
                 }),
-            };
+            });
         }
 
         if (error.name === 'ConditionalCheckFailedException') {
-            return {
+            return withCors({
                 statusCode: 404,
                 body: JSON.stringify({ message: "Product not found" }),
-            };
+            });
         }
 
-        return {
+        return withCors({
             statusCode: 500,
             body: JSON.stringify({ message: "Internal server error" }),
-        };
+        });
     }
 };

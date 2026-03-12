@@ -1,6 +1,5 @@
 import { getCartItems } from "../../services/cart";
-import { getProductDetails } from "../../services/product";
-import { Product, UserCart } from "../../dynamoDbTypes";
+import { getProductItem } from "../../services/product";
 
 export const handler = async ({ userId }: { userId: string }) => {
     try {
@@ -15,15 +14,9 @@ export const handler = async ({ userId }: { userId: string }) => {
 
         const productIds = cartItems.map((item) => item.SK.split("#")[1]);
 
-        const fullProductsRaw = await Promise.all(
-            productIds.map((id) => getProductDetails(id))
-        );
-        // getProductDetails returns Items[], flatten and filter
-        const fullProducts = fullProductsRaw
-            .flatMap((items) => items ?? [])
-            .filter((p): p is Product => p !== null);
+        const fullProducts = await getProductItem(productIds);
 
-        const productMap = new Map(fullProducts.map((p) => [p.PK, p]));
+        const productMap = new Map(fullProducts.map((p) => [p?.PK, p]));
 
         const enrichedCartItems = [];
         let fullPrice = 0;

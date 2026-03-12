@@ -5,13 +5,14 @@ info:
   version: 1.0.0
 
 paths:
-%{ for ep in endpoints }
-  ${ep.endpoint}:
-    ${lower(ep.type)}:
-      summary: API Endpoint for ${ep.endpoint}
-%{ if length(regexall("\\{([^}]+)\\}", ep.endpoint)) > 0 }
+%{ for path, methods in { for route in routes : route.path => route... } }
+  ${path}:
+%{ for route in methods }
+    ${lower(route.method)}:
+      summary: API Endpoint for ${path} (${route.method})
+%{ if length(regexall("\\{([^}]+)\\}", path)) > 0 }
       parameters:
-%{ for match in regexall("\\{([^}]+)\\}", ep.endpoint) }
+%{ for match in regexall("\\{([^}]+)\\}", path) }
         - name: ${match[0]}
           in: path
           required: true
@@ -22,16 +23,56 @@ paths:
       responses:
         "200":
           description: OK
-%{ if !ep.no_auth }
+%{ if try(!route.config.no_auth, true) }
       security:
         - custom_lambda_auth: []
 %{ endif }
-      x-required-groups: ${jsonencode(ep.permissions)}
+      x-required-groups: ${jsonencode(route.config.permissions)}
       x-amazon-apigateway-integration:
-        uri: ${ep.lambda}
+        uri: ${route.config.lambda}
         httpMethod: POST
         type: aws_proxy
         timeoutInMillis: 12000
+%{ endfor }
+    options:
+      summary: CORS preflight for ${path}
+%{ if length(regexall("\\{([^}]+)\\}", path)) > 0 }
+      parameters:
+%{ for match in regexall("\\{([^}]+)\\}", path) }
+        - name: ${match[0]}
+          in: path
+          required: true
+          schema:
+            type: string
+%{ endfor }
+%{ endif }
+      responses:
+        "200":
+          description: CORS preflight response
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+      security: []
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: '{"statusCode": 200}'
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,PATCH,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,x-api-key'"
+            responseTemplates:
+              application/json: '{}'
 %{ endfor }
 
 security:

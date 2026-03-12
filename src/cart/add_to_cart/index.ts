@@ -1,5 +1,6 @@
 import { addToCart, getProductPriceForCart } from "../../services/cart";
 import { validateAddToCartSchema } from "./schema";
+import { withCors } from "../../utils/cors";
 
 export const handler = async (event: any) => {
     try {
@@ -19,15 +20,15 @@ export const handler = async (event: any) => {
             priceAtAdd,
         });
 
-        return {
+        return withCors({
             statusCode: 200,
             body: JSON.stringify({ message: "Product added to cart successfully" }),
-        };
+        });
     } catch (error) {
         console.log("@@@@ ERROR: ", error);
-        return {
+        return withCors({
             statusCode: 400,
             body: JSON.stringify({ message: "Invalid request body" }),
-        };
+        });
     }
 };

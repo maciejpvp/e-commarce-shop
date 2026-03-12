@@ -1,7 +1,17 @@
+data "external" "flatten_endpoints" {
+  program = ["node", "${path.module}/flatten_endpoints.js"]
+
+  query = {
+    endpoints = jsonencode(var.endpoints)
+  }
+}
+
 locals {
-  # Map security rules based on the endpoints array
+  parsed_routes = jsondecode(data.external.flatten_endpoints.result.routes_json)
+
+  # Map security rules based on the flattened routes array
   security_mapping = {
-    for ep in var.endpoints : "${upper(ep.type)}${ep.endpoint}" => ep.permissions
+    for route in local.parsed_routes : "${route.method}${route.path}" => route.config.permissions
   }
 
   rendered_body = templatefile("${path.module}/api.yaml", {
@@ -9,7 +19,7 @@ locals {
     cognito_issuer               = "https://${var.cognito_user_pool_endpoint}"
     cognito_user_pool_arn        = var.cognito_user_pool_arn
     authorizer_lambda_invoke_arn = var.authorizer_lambda_invoke_arn
-    endpoints                    = var.endpoints
+    routes                       = local.parsed_routes
   })
 
 

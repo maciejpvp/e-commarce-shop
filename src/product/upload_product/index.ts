@@ -4,6 +4,7 @@ import { validateProductSchema } from './schema';
 import { generatePresignedPostsForMedia } from './media';
 import { uploadProductMetadata, uploadProductCategory } from '../../services/product';
 import { ProductCategory, ProductMetadata } from '../../types';
+import { withCors } from '../../utils/cors';
 
 export const handler = async (
     event: APIGatewayProxyEventV2
@@ -42,26 +43,26 @@ export const handler = async (
         await uploadProductMetadata(productMetadata);
         await uploadProductCategory(productCategories);
 
-        return {
+        return withCors({
             statusCode: 200,
             body: JSON.stringify({
                 message: "Product uploaded successfully",
                 presignedPosts,
             }),
-        };
+        });
     } catch (error: any) {
         console.error('Error processing product upload:', error);
 
         if (error.isJoi) {
-            return {
+            return withCors({
                 statusCode: 400,
                 body: JSON.stringify({ message: "Validation error", details: error.details }),
-            };
+            });
         }
 
-        return {
+        return withCors({
             statusCode: 500,
             body: JSON.stringify({ message: "Internal server error" }),
-        };
+        });
     }
 };

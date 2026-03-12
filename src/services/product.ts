@@ -1,7 +1,8 @@
-import { QueryCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, PutCommand, UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { executeQuery } from "../utils/db";
 import { docClient } from "../utils/docClient";
 import { ProductMetadata, ProductCategory } from "../types";
+import { Product } from "../dynamoDbTypes";
 
 const tableName = process.env.TABLE_NAME!;
 const INDEX = "GSI1";
@@ -18,18 +19,34 @@ export const getProductsByCategory = (category: string) => {
     return executeQuery(command);
 };
 
-export const getProductDetails = (productId: string) => {
+export const getProductItem = async (productIds: string[]): Promise<Product[]> => {
+    const products: Product[] = [];
+    for (const productId of productIds) {
+        const command = new GetCommand({
+            TableName: tableName,
+            Key: {
+                PK: `PRODUCT#${productId}`,
+                SK: "METADATA",
+            },
+        });
+        const response = await docClient.send(command);
+        products.push(response.Item as Product);
+    }
+    return products;
+};
+
+export const getProductCategories = (productId: string) => {
     const command = new QueryCommand({
         TableName: tableName,
         KeyConditionExpression: "#pk = :pk and begins_with(#sk, :sk)",
         ExpressionAttributeValues: {
             ":pk": `PRODUCT#${productId}`,
-            ":sk": `METADATA`,
+            ":sk": `CATEGORY`,
         },
         ExpressionAttributeNames: { "#sk": "SK", "#pk": "PK" },
     });
     return executeQuery(command);
-};
+}
 
 // ─── Write ────────────────────────────────────────────────────────────────────
 

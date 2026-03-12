@@ -74,7 +74,7 @@ module "get_cart_lambda" {
 
   extra_policy_statements = [
     {
-      Action   = ["dynamodb:GetItem"]
+      Action   = ["dynamodb:GetItem", "dynamodb:Query"]
       Effect   = "Allow"
       Resource = [var.table_arn]
     },

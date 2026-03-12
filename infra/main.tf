@@ -64,51 +64,60 @@ module "api_gateway" {
   cognito_user_pool_arn        = module.cognito.cognito_user_pool_arn
   authorizer_lambda_invoke_arn = module.lambdas.authorizer_lambda_invoke_arn
 
-  endpoints = [
-    {
-      endpoint    = "/products/upload"
-      type        = "POST"
-      lambda      = module.lambdas.upload_product_lambda_invoke_arn
-      permissions = ["admin"]
+  endpoints = {
+    products = {
+      upload = {
+        POST = {
+          lambda      = module.lambdas.upload_product_lambda_invoke_arn
+          permissions = ["admin"]
+        }
+      },
+      update = {
+        "{productId}" = {
+          PATCH = {
+            lambda      = module.lambdas.update_product_lambda_invoke_arn
+            permissions = ["admin"]
+          }
+        }
+      },
+      category = {
+        "{category}" = {
+          GET = {
+            lambda      = module.lambdas.get_products_for_category_lambda_invoke_arn
+            permissions = []
+            no_auth     = true
+          }
+        }
+      },
+      "{productId}" = {
+        GET = {
+          lambda      = module.lambdas.get_product_lambda_invoke_arn
+          permissions = []
+          no_auth     = true
+        }
+      }
     },
-    {
-      endpoint    = "/products/update/{productId}"
-      type        = "PATCH"
-      lambda      = module.lambdas.update_product_lambda_invoke_arn
-      permissions = ["admin"]
+    cart = {
+      POST = {
+        lambda      = module.lambdas.add_to_cart_lambda_invoke_arn
+        permissions = []
+      }
+      PATCH = {
+        lambda      = module.lambdas.update_cart_item_lambda_invoke_arn
+        permissions = []
+      }
+      GET = {
+        lambda      = module.lambdas.get_cart_lambda_invoke_arn
+        permissions = []
+      }
     },
-    {
-      endpoint    = "/products/category/{category}"
-      type        = "GET"
-      lambda      = module.lambdas.get_products_for_category_lambda_invoke_arn
-      permissions = []
-      no_auth     = true
-    },
-    {
-      endpoint    = "/cart/add"
-      type        = "POST"
-      lambda      = module.lambdas.add_to_cart_lambda_invoke_arn
-      permissions = []
-    },
-    {
-      endpoint    = "/cart/update"
-      type        = "PATCH"
-      lambda      = module.lambdas.update_cart_item_lambda_invoke_arn
-      permissions = []
-    },
-    {
-      endpoint    = "/cart"
-      type        = "GET"
-      lambda      = module.lambdas.get_cart_lambda_invoke_arn
-      permissions = []
-    },
-    {
-      endpoint    = "/coupons"
-      type        = "POST"
-      lambda      = module.lambdas.create_coupon_lambda_invoke_arn
-      permissions = ["admin"]
-    },
-  ]
+    coupons = {
+      POST = {
+        lambda      = module.lambdas.create_coupon_lambda_invoke_arn
+        permissions = ["admin"]
+      }
+    }
+  }
 }
 
 // --- DATABASE ---
