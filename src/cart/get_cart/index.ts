@@ -13,6 +13,8 @@ export const handler = async (event: any) => {
 
     const cart = await getCart(userId);
 
+    console.log("Cart:", JSON.stringify(cart));
+
     if (!cart || cart.length === 0) {
         return withCors({
             statusCode: 200,
@@ -44,8 +46,12 @@ export const handler = async (event: any) => {
         };
     }).filter((item) => item !== null);
 
-    return withCors({
+    const response = withCors({
         statusCode: 200,
         body: JSON.stringify({ cartItems }),
     });
+
+    console.log(response);
+
+    return response;
 };

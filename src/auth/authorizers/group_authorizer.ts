@@ -22,21 +22,29 @@ export const handler = async (event: APIGatewayTokenAuthorizerEvent): Promise<AP
         const methodArn = event.methodArn;
         const arnParts = methodArn.split(':');
         const apiGatewayArnPart = arnParts[5].split('/');
+        
+        const apiId = apiGatewayArnPart[0];
+        const stage = apiGatewayArnPart[1];
         const method = apiGatewayArnPart[2];
         const resourcePath = "/" + apiGatewayArnPart.slice(3).join('/');
-
         const resourceKey = `${method}${resourcePath}`;
         const requiredGroups = resourceMap[resourceKey] || [];
         const isAuthorized = requiredGroups.length === 0 || requiredGroups.some(group => groups.includes(group));
 
-        return generatePolicy(payload.sub as string, isAuthorized ? 'Allow' : 'Deny', methodArn, {
+        const wildcardArn = `${arnParts.slice(0, 5).join(':')}:${apiId}/${stage}/*/*`;
+
+        return generatePolicy(payload.sub as string, isAuthorized ? 'Allow' : 'Deny', wildcardArn, {
             sub: payload.sub as string,
             email: payload.email as string || "",
             groups: JSON.stringify(groups)
         });
     } catch (err) {
         console.error("Token verification failed:", err);
-        return generatePolicy('user', 'Deny', event.methodArn);
+        const arnParts = event.methodArn.split(':');
+        const apiGatewayArnPart = arnParts[5].split('/');
+        const wildcardArn = `${arnParts.slice(0, 5).join(':')}:${apiGatewayArnPart[0]}/${apiGatewayArnPart[1]}/*/*`;
+        
+        return generatePolicy('user', 'Deny', wildcardArn);
     }
 };
 

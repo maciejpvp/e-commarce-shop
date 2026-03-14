@@ -82,7 +82,8 @@ module "get_products_for_category_lambda" {
   extra_policy_statements = [
     {
       Action = [
-        "dynamodb:Query"
+        "dynamodb:Query",
+        "dynamodb:GetItem"
       ]
       Effect   = "Allow"
       Resource = [var.table_arn, "${var.table_arn}/index/GSI1"]
@@ -113,7 +114,8 @@ module "get_product_lambda" {
   extra_policy_statements = [
     {
       Action = [
-        "dynamodb:Query"
+        "dynamodb:Query",
+        "dynamodb:GetItem"
       ]
       Effect   = "Allow"
       Resource = [var.table_arn]

@@ -59,6 +59,21 @@ resource "aws_api_gateway_stage" "this" {
   rest_api_id   = aws_api_gateway_rest_api.this.id
   stage_name    = "prod"
 
+  depends_on = [aws_api_gateway_account.main]
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw.arn
+    format = jsonencode({
+      requestId      = "$context.requestId"
+      ip             = "$context.identity.sourceIp"
+      requestTime    = "$context.requestTime"
+      httpMethod     = "$context.httpMethod"
+      resourcePath   = "$context.resourcePath"
+      status         = "$context.status"
+      protocol       = "$context.protocol"
+      responseLength = "$context.responseLength"
+    })
+  }
 
   tags = {
     Environment = var.Environment
@@ -93,6 +108,28 @@ resource "aws_api_gateway_usage_plan_key" "this" {
   key_id        = aws_api_gateway_api_key.this.id
   key_type      = "API_KEY"
   usage_plan_id = aws_api_gateway_usage_plan.this.id
+}
+
+resource "aws_api_gateway_gateway_response" "cors_4xx" {
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  response_type = "DEFAULT_4XX"
+
+  response_parameters = {
+    "gatewayresponse.header.Access-Control-Allow-Origin"  = "'*'"
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'*'"
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'*'"
+  }
+}
+
+resource "aws_api_gateway_gateway_response" "cors_5xx" {
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  response_type = "DEFAULT_5XX"
+
+  response_parameters = {
+    "gatewayresponse.header.Access-Control-Allow-Origin"  = "'*'"
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'*'"
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'*'"
+  }
 }
 
 resource "aws_cloudwatch_log_group" "api_gw" {

@@ -1,7 +1,7 @@
 export const CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization,x-api-key",
+    "Access-Control-Allow-Methods": "*",
+    "Access-Control-Allow-Headers": "*",
 };
 
 export function withCors(response: {

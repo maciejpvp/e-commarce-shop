@@ -120,7 +120,8 @@ export const updateCartItem = async (
     };
 
     const command = new UpdateCommand(commandInput);
-    await docClient.send(command);
+    const response = await docClient.send(command);
+    console.log("@@@@ UPDATE CART ITEM RESPONSE: ", response);
 };
 
 export const deleteCartItem = async (

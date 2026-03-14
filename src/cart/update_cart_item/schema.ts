@@ -7,7 +7,7 @@ type SchemaType = {
 
 const schema = Joi.object<SchemaType>({
     productId: Joi.string().uuid().required(),
-    quantity: Joi.number().min(1).max(100).required(),
+    quantity: Joi.number().min(0).max(100).required(),
 });
 
 export function validateUpdateCartItemSchema(body: any): SchemaType {

@@ -11,6 +11,10 @@ export const handler = async (event: any) => {
         const productId = validatedBody.productId;
         const quantity = validatedBody.quantity;
 
+        console.log("@@@@ USER ID: ", userId);
+        console.log("@@@@ PRODUCT ID: ", productId);
+        console.log("@@@@ QUANTITY: ", quantity);
+
         if (quantity <= 0) {
             await deleteCartItem(userId, productId);
         } else {

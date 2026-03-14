@@ -23,10 +23,21 @@ paths:
       responses:
         "200":
           description: OK
-%{ if try(!route.config.no_auth, true) }
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+    %{ if try(!route.config.no_auth, true) }
       security:
         - custom_lambda_auth: []
-%{ endif }
+          api_key: []
+    %{ else }
+      security:
+        - api_key: []
+    %{ endif }
       x-required-groups: ${jsonencode(route.config.permissions)}
       x-amazon-apigateway-integration:
         uri: ${route.config.lambda}
@@ -69,14 +80,13 @@ paths:
             statusCode: "200"
             responseParameters:
               method.response.header.Access-Control-Allow-Origin: "'*'"
-              method.response.header.Access-Control-Allow-Methods: "'GET,POST,PUT,PATCH,DELETE,OPTIONS'"
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,x-api-key'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+              method.response.header.Access-Control-Allow-Headers: "'*'"
             responseTemplates:
               application/json: '{}'
 %{ endfor }
 
-security:
-  - api_key: []
+security: []
 
 components:
   securitySchemes:
