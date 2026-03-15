@@ -15,6 +15,7 @@ module "validate_cart_lambda" {
     {
       Action = [
         "dynamodb:Query",
+        "dynamodb:GetItem",
         "dynamodb:TransactWriteItems"
       ]
       Effect   = "Allow"
@@ -226,4 +227,67 @@ module "send_receipt_lambda" {
       Resource = ["*"]
     }
   ]
+}
+
+module "init_checkout_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-init-checkout"
+  environment   = var.Environment
+  entry_point   = "src/checkout/init_checkout/index.ts"
+  handler       = "index.handler"
+  timeout       = 10
+
+  environment_variables = {
+    TABLE_NAME       = var.table_name
+    CHECKOUT_SFN_ARN = var.checkout_sfn_arn
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "states:StartExecution"
+      ]
+      Effect   = "Allow"
+      Resource = ["*"]
+    }
+  ]
+
+  allowed_triggers = {
+    APIGateway = {
+      principal  = "apigateway.amazonaws.com"
+      source_arn = "${var.api_gateway_execution_arn}/*/*"
+    }
+  }
+}
+
+module "fetch_checkout_url_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-fetch-checkout-url"
+  environment   = var.Environment
+  entry_point   = "src/checkout/fetch_checkout_url/index.ts"
+  handler       = "index.handler"
+  timeout       = 10
+
+  environment_variables = {
+    TABLE_NAME = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "dynamodb:GetItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+    }
+  ]
+
+  allowed_triggers = {
+    APIGateway = {
+      principal  = "apigateway.amazonaws.com"
+      source_arn = "${var.api_gateway_execution_arn}/*/*"
+    }
+  }
 }

@@ -6,6 +6,7 @@ type EventProps = {
     body: {
         cartItems: CartItem[];
         fullPrice: number;
+        orderId: string;
     };
 };
 

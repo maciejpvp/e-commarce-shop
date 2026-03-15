@@ -68,7 +68,7 @@ export interface UserCart extends BaseItem {
 
 export interface OrderSummary extends BaseItem {
     PK: `USER#${string}`;
-    SK: `ORDER#${ISO8601}#${string}`;
+    SK: `ORDER#${string}`;
     status: OrderStatus;
     orderId: string;
     sessionId: string;

@@ -85,3 +85,11 @@ output "cleanup_lambda_invoke_arn" {
 output "send_receipt_lambda_arn" {
   value = module.send_receipt_lambda.lambda_arn
 }
+
+output "init_checkout_lambda_invoke_arn" {
+  value = module.init_checkout_lambda.lambda_invoke_arn
+}
+
+output "fetch_checkout_url_lambda_invoke_arn" {
+  value = module.fetch_checkout_url_lambda.lambda_invoke_arn
+}

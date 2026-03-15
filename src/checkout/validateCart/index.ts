@@ -1,7 +1,8 @@
 import { getCartItems } from "../../services/cart";
 import { getProductItem } from "../../services/product";
 
-export const handler = async ({ userId }: { userId: string }) => {
+export const handler = async ({ userId, orderId }: { userId: string, orderId: string }) => {
+    console.log(`UserID: ${userId}, OrderId: ${orderId}`);
     try {
         const cartItems = await getCartItems(userId);
 
@@ -54,6 +55,7 @@ export const handler = async ({ userId }: { userId: string }) => {
                 cartItems: enrichedCartItems,
                 fullPrice,
                 userId,
+                orderId,
             },
         };
     } catch (error) {

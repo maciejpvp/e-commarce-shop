@@ -18,7 +18,7 @@ export const handler = async (event: EventType) => {
 
     await updateOrderStatus(order, isSuccess ? "PAID" : "CANCELLED");
 
-    const orderId = order.SK.split("#")[2];
+    const orderId = order.SK.split("#")[1];
     const userId = order.PK.split("#")[1];
 
     return {

@@ -35,6 +35,11 @@ variable "api_gateway_execution_arn" {
   type        = string
 }
 
+variable "checkout_sfn_arn" {
+  description = "Checkout State Machine ARN"
+  type        = string
+}
+
 variable "cognito_user_pool_client_id" {
   description = "Cognito User Pool Client ID"
   type        = string

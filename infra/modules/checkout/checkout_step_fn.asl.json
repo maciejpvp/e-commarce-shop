@@ -1,236 +1,234 @@
 {
-    "Comment": "A description of my state machine",
-    "QueryLanguage": "JSONata",
-    "StartAt": "Validate Cart",
-    "States": {
-        "Validate Cart": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Output": "{% $states.result.Payload %}",
-            "Arguments": {
-                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-validate-cart-dev:$LATEST",
-                "Payload": {
-                    "userId": "b39428d2-3061-707c-508a-fd75e9c11d91"
-                }
-            },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                    ],
-                    "IntervalSeconds": 1,
-                    "MaxAttempts": 3,
-                    "BackoffRate": 2,
-                    "JitterStrategy": "FULL"
-                }
-            ],
-            "Next": "Is Cart Valid"
-        },
-        "Is Cart Valid": {
-            "Type": "Choice",
-            "Choices": [
-                {
-                    "Condition": "{% $states.input.statusCode = 200 %}",
-                    "Next": "Reserve Stock"
-                }
-            ],
-            "Default": "Invalid Cart"
-        },
-        "Reserve Stock": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Output": "{% $states.result.Payload %}",
-            "Arguments": {
-                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-reserve-stock-dev:$LATEST",
-                "Payload": "{% $states.input %}"
-            },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                    ],
-                    "IntervalSeconds": 1,
-                    "MaxAttempts": 3,
-                    "BackoffRate": 2,
-                    "JitterStrategy": "FULL"
-                }
-            ],
-            "Next": "Check Stock Availability"
-        },
-        "Check Stock Availability": {
-            "Type": "Choice",
-            "Choices": [
-                {
-                    "Next": "Generate Checkout URL",
-                    "Condition": "{% $states.input.statusCode = 200 %}"
-                }
-            ],
-            "Default": "Not Enough Stock"
-        },
-        "Generate Checkout URL": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
-            "Output": "{% $states.result.Payload %}",
-            "Arguments": {
-                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-create-checkout-session-dev:$LATEST",
-                "Payload": {
-                    "totalPrice": 5000,
-                    "token": "{% $states.context.Task.Token %}",
-                    "originalData": "{% $states.input %}"
-                }
-            },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                    ],
-                    "IntervalSeconds": 1,
-                    "MaxAttempts": 3,
-                    "BackoffRate": 2,
-                    "JitterStrategy": "FULL"
-                }
-            ],
-            "Next": "Finalize Order",
-            "Catch": [
-                {
-                    "ErrorEquals": [
-                        "States.ALL"
-                    ],
-                    "Next": "CleanUp Order Record"
-                }
-            ]
-        },
-        "CleanUp Order Record": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Output": "{% $states.result.Payload %}",
-            "Arguments": {
-                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-cleanup-dev:$LATEST",
-                "Payload": "{% $states.input %}"
-            },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                    ],
-                    "IntervalSeconds": 1,
-                    "MaxAttempts": 3,
-                    "BackoffRate": 2,
-                    "JitterStrategy": "FULL"
-                }
-            ],
-            "Next": "Fail: Checkout Generation"
-        },
-        "Fail: Checkout Generation": {
-            "Type": "Fail"
-        },
-        "Finalize Order": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Output": "{% $states.result.Payload %}",
-            "Arguments": {
-                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-finalize-order-dev:$LATEST",
-                "Payload": "{% $states.input %}"
-            },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                    ],
-                    "IntervalSeconds": 1,
-                    "MaxAttempts": 3,
-                    "BackoffRate": 2,
-                    "JitterStrategy": "FULL"
-                }
-            ],
-            "Next": "Was Order Successful"
-        },
-        "Was Order Successful": {
-            "Type": "Choice",
-            "Choices": [
-                {
-                    "Next": "Send Receipt To Email",
-                    "Condition": "{% $states.input.status = \"SUCCESS\" %}"
-                }
-            ],
-            "Default": "Un Reserve the Stock"
-        },
-        "Send Receipt To Email": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Output": "{% $states.result.Payload %}",
-            "Arguments": {
-                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-send-receipt-dev:$LATEST",
-                "Payload": "{% $states.input %}"
-            },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                    ],
-                    "IntervalSeconds": 1,
-                    "MaxAttempts": 3,
-                    "BackoffRate": 2,
-                    "JitterStrategy": "FULL"
-                }
-            ],
-            "Next": "Payment Accepted"
-        },
-        "Payment Accepted": {
-            "Type": "Succeed"
-        },
-        "Un Reserve the Stock": {
-            "Type": "Task",
-            "Resource": "arn:aws:states:::lambda:invoke",
-            "Output": "{% $states.result.Payload %}",
-            "Arguments": {
-                "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-unreserve-stock-dev:$LATEST",
-                "Payload": "{% $states.input %}"
-            },
-            "Retry": [
-                {
-                    "ErrorEquals": [
-                        "Lambda.ServiceException",
-                        "Lambda.AWSLambdaException",
-                        "Lambda.SdkClientException",
-                        "Lambda.TooManyRequestsException"
-                    ],
-                    "IntervalSeconds": 1,
-                    "MaxAttempts": 3,
-                    "BackoffRate": 2,
-                    "JitterStrategy": "FULL"
-                }
-            ],
-            "Next": "Payment Declined"
-        },
-        "Payment Declined": {
-            "Type": "Fail"
-        },
-        "Not Enough Stock": {
-            "Type": "Fail"
-        },
-        "Invalid Cart": {
-            "Type": "Fail",
-            "Error": "ValidationError",
-            "Cause": "The cart validation failed or returned a non-200 status."
+  "Comment": "A description of my state machine",
+  "QueryLanguage": "JSONata",
+  "StartAt": "Validate Cart",
+  "States": {
+    "Validate Cart": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-validate-cart-dev:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
         }
+      ],
+      "Next": "Is Cart Valid"
+    },
+    "Is Cart Valid": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $states.input.statusCode = 200 %}",
+          "Next": "Reserve Stock"
+        }
+      ],
+      "Default": "Invalid Cart"
+    },
+    "Reserve Stock": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-reserve-stock-dev:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Check Stock Availability"
+    },
+    "Check Stock Availability": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "Generate Checkout URL",
+          "Condition": "{% $states.input.statusCode = 200 %}"
+        }
+      ],
+      "Default": "Not Enough Stock"
+    },
+    "Generate Checkout URL": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-create-checkout-session-dev:$LATEST",
+        "Payload": {
+          "totalPrice": 5000,
+          "token": "{% $states.context.Task.Token %}",
+          "originalData": "{% $states.input %}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Finalize Order",
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "CleanUp Order Record"
+        }
+      ]
+    },
+    "CleanUp Order Record": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-cleanup-dev:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Fail: Checkout Generation"
+    },
+    "Fail: Checkout Generation": {
+      "Type": "Fail"
+    },
+    "Finalize Order": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-finalize-order-dev:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Was Order Successful"
+    },
+    "Was Order Successful": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "Send Receipt To Email",
+          "Condition": "{% $states.input.status = \"SUCCESS\" %}"
+        }
+      ],
+      "Default": "Un Reserve the Stock"
+    },
+    "Send Receipt To Email": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-send-receipt-dev:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Payment Accepted"
+    },
+    "Payment Accepted": {
+      "Type": "Succeed"
+    },
+    "Un Reserve the Stock": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Output": "{% $states.result.Payload %}",
+      "Arguments": {
+        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-unreserve-stock-dev:$LATEST",
+        "Payload": "{% $states.input %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "Payment Declined"
+    },
+    "Payment Declined": {
+      "Type": "Fail"
+    },
+    "Not Enough Stock": {
+      "Type": "Fail"
+    },
+    "Invalid Cart": {
+      "Type": "Fail",
+      "Error": "ValidationError",
+      "Cause": "The cart validation failed or returned a non-200 status."
     }
+  }
 }

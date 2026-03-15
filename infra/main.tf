@@ -33,6 +33,7 @@ module "lambdas" {
   bucket_arn                  = module.s3_product_media.bucket_arn
   user_pool_arn               = module.cognito.cognito_user_pool_arn
   api_gateway_execution_arn   = module.api_gateway.api_execution_arn
+  checkout_sfn_arn            = module.checkout.state_machine_arn
   cognito_user_pool_client_id = module.cognito.cognito_user_pool_client_id
   cognito_user_pool_endpoint  = module.cognito.cognito_user_pool_endpoint
   security_mapping            = module.api_gateway.security_mapping # Assuming api_gateway still exports this or needs it
@@ -115,6 +116,18 @@ module "api_gateway" {
       POST = {
         lambda      = module.lambdas.create_coupon_lambda_invoke_arn
         permissions = ["admin"]
+      }
+    },
+    checkout = {
+      POST = {
+        lambda      = module.lambdas.init_checkout_lambda_invoke_arn
+        permissions = []
+      }
+      "{orderId}" = {
+        GET = {
+          lambda      = module.lambdas.fetch_checkout_url_lambda_invoke_arn
+          permissions = []
+        }
       }
     }
   }

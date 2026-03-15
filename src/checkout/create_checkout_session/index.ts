@@ -1,6 +1,5 @@
 import Stripe from 'stripe';
 import { getStripe } from '../../utils/getStripe';
-import { v4 as uuidv4 } from 'uuid';
 import { saveOrderSummary, saveOrderItem } from '../../services/order';
 import { OrderItem, OrderStatus, OrderSummary } from '../../dynamoDbTypes';
 import { CartItem } from '../../types';
@@ -16,6 +15,7 @@ type Event = {
             cartItems: CartItem[];
             fullPrice: number;
             userId: string;
+            orderId: string;
         };
     };
 };
@@ -24,15 +24,12 @@ export const handler = async (event: Event) => {
     if (!stripeInstance) {
         stripeInstance = await getStripe();
     }
-    console.log("event: ", event);
     const { totalPrice, token, originalData } = event;
 
-    const orderId = uuidv4();
-    const userId = event.originalData.body.userId;
-    const createdAt = new Date().toISOString();
+    const { userId, orderId } = originalData.body;
 
     const PK = `USER#${userId}` as OrderSummary['PK'];
-    const SK: OrderSummary['SK'] = `ORDER#${createdAt}#${orderId}`;
+    const SK: OrderSummary['SK'] = `ORDER#${orderId}`;
 
     try {
         const session = await createSession(totalPrice, PK, SK);
@@ -59,7 +56,7 @@ export const handler = async (event: Event) => {
             quantity: item.quantity,
             price_at_purchase: item.price,
             gsi1pk: `PRODUCT#${item.productId}`,
-            gsi1sk: `ORDER#${createdAt}#${orderId}`,
+            gsi1sk: `ORDER#${orderId}`,
         }));
 
         for (const orderItem of orderItems) {
