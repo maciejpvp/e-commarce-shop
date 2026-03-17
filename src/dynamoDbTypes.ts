@@ -48,6 +48,7 @@ export interface EmailClaim {
 export interface UserAddress extends BaseItem {
     PK: `USER#${string}`;
     SK: `ADDRESS#${string}`;
+    name: string;
     street: string;
     city: string;
     state: string;

@@ -3,6 +3,7 @@ import { UserAddress } from "../../dynamoDbTypes";
 import { validateAddress } from "./validateAddress";
 import { docClient } from "../../utils/docClient";
 import { withCors } from "../../utils/cors";
+import { slugify } from "../../utils/slugify";
 
 const tableName = process.env.TABLE_NAME;
 
@@ -12,9 +13,12 @@ export const handler = async (event: any) => {
     
     const validatedAddress = validateAddress(body.address || body);
 
+    const nameSlug = slugify(validatedAddress.name);
+
     const addressItem: UserAddress = {
         PK: `USER#${userId}`,
-        SK: `ADDRESS#${validatedAddress.name}`,
+        SK: `ADDRESS#${nameSlug}`,
+        name: validatedAddress.name,
         street: validatedAddress.street,
         city: validatedAddress.city,
         state: validatedAddress.state,
@@ -41,6 +45,7 @@ async function saveAddressWithLimitCheck(userId: string, addressItem: UserAddres
                 Put: {
                     TableName: tableName,
                     Item: addressItem,
+                    ConditionExpression: "attribute_not_exists(PK)",
                 },
             },
             {

@@ -140,6 +140,16 @@ module "api_gateway" {
           lambda      = module.lambdas.get_address_list_lambda_invoke_arn
           permissions = []
         }
+        "{addressName}" = {
+          DELETE = {
+            lambda      = module.lambdas.delete_address_lambda_invoke_arn
+            permissions = []
+          }
+          PATCH = {
+            lambda      = module.lambdas.edit_address_lambda_invoke_arn
+            permissions = []
+          }
+        }
       }
     }
   }
