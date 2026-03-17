@@ -130,6 +130,18 @@ module "api_gateway" {
         }
       }
     }
+    user = {
+      address = {
+        POST = {
+          lambda      = module.lambdas.upload_address_lambda_invoke_arn
+          permissions = []
+        }
+        GET = {
+          lambda      = module.lambdas.get_address_list_lambda_invoke_arn
+          permissions = []
+        }
+      }
+    }
   }
 }
 
