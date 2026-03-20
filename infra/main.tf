@@ -123,6 +123,12 @@ module "api_gateway" {
         lambda      = module.lambdas.init_checkout_lambda_invoke_arn
         permissions = []
       }
+      calculate = {
+        POST = {
+          lambda      = module.lambdas.calculate_checkout_summary_lambda_invoke_arn
+          permissions = []
+        }
+      }
       "{orderId}" = {
         GET = {
           lambda      = module.lambdas.fetch_checkout_url_lambda_invoke_arn

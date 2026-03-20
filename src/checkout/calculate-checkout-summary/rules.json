@@ -1,0 +1,41 @@
+{
+  "shipping": {
+    "default_cost": 12.00,
+    "free_threshold": 75.00,
+    "surcharge_categories": { "Espresso Machines": 25.00 }
+  },
+  "item_discounts": [
+    {
+      "id": "BULK_BEANS_5_PLUS",
+      "description": "Buy 5+ bags of beans, get $2 off each bag",
+      "conditions": { "category": "beans", "min_qty": 5 },
+      "action": { "type": "FIXED_PER_UNIT", "value": 2.00 }
+    },
+    {
+      "id": "SECOND_MOKAPOT_HALF_OFF",
+      "description": "Buy 2 Moka Pots, 2nd is 50% off",
+      "conditions": { "category": "moka-pot", "min_qty": 2 },
+      "action": { "type": "PERCENT_OFF_SECOND", "value": 50 }
+    },
+    {
+      "id": "MOKAPOT_BUNDLE",
+      "description": "15% off any Moka Pot if an Espresso Machine is in cart",
+      "conditions": { "target_category": "moka-pot", "required_category": "espresso-machines" },
+      "action": { "type": "CATEGORY_PERCENT_OFF", "value": 15 }
+    }
+  ],
+  "order_discounts": [
+    {
+      "id": "BARISTA_START",
+      "coupon": "FRESHSTART",
+      "conditions": { "min_spend": 150 },
+      "action": { "type": "FIXED", "value": 20 }
+    },
+    {
+      "id": "FIRST_ORDER_10",
+      "coupon": "WELCOME10",
+      "conditions": { "min_spend": 50 },
+      "action": { "type": "PERCENT", "value": 10 }
+    }
+  ]
+}

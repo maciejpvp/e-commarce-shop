@@ -1,5 +1,6 @@
 import { CartItem } from "../../types";
 import { reserveStockTransaction } from "../../services/order";
+import { UserAddress } from "../../dynamoDbTypes";
 
 type EventProps = {
     statusCode: number;
@@ -7,6 +8,7 @@ type EventProps = {
         cartItems: CartItem[];
         fullPrice: number;
         orderId: string;
+        address: UserAddress;
     };
 };
 

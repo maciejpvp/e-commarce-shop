@@ -35,7 +35,7 @@ export const getProductItem = async (productIds: string[]): Promise<Product[]> =
     return products;
 };
 
-export const getProductCategories = (productId: string) => {
+export const getProductCategories = async (productId: string) => {
     const command = new QueryCommand({
         TableName: tableName,
         KeyConditionExpression: "#pk = :pk and begins_with(#sk, :sk)",
@@ -45,7 +45,8 @@ export const getProductCategories = (productId: string) => {
         },
         ExpressionAttributeNames: { "#sk": "SK", "#pk": "PK" },
     });
-    return executeQuery(command);
+    const response = await docClient.send(command);
+    return response.Items?.map((item) => item.SK.split("#")[1]) || [];
 }
 
 // ─── Write ────────────────────────────────────────────────────────────────────

@@ -93,3 +93,11 @@ output "init_checkout_lambda_invoke_arn" {
 output "fetch_checkout_url_lambda_invoke_arn" {
   value = module.fetch_checkout_url_lambda.lambda_invoke_arn
 }
+
+output "calculate_checkout_summary_lambda_arn" {
+  value = module.calculate_checkout_summary_lambda.lambda_arn
+}
+
+output "calculate_checkout_summary_lambda_invoke_arn" {
+  value = module.calculate_checkout_summary_lambda.lambda_invoke_arn
+}

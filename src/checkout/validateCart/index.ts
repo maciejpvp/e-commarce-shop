@@ -1,7 +1,8 @@
 import { getCartItems } from "../../services/cart";
 import { getProductItem } from "../../services/product";
+import { UserAddress } from "../../dynamoDbTypes";
 
-export const handler = async ({ userId, orderId }: { userId: string, orderId: string }) => {
+export const handler = async ({ userId, orderId, address }: { userId: string, orderId: string, address: UserAddress }) => {
     console.log(`UserID: ${userId}, OrderId: ${orderId}`);
     try {
         const cartItems = await getCartItems(userId);
@@ -56,6 +57,7 @@ export const handler = async ({ userId, orderId }: { userId: string, orderId: st
                 fullPrice,
                 userId,
                 orderId,
+                address,
             },
         };
     } catch (error) {

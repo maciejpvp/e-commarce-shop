@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { getStripe } from '../../utils/getStripe';
 import { saveOrderSummary, saveOrderItem } from '../../services/order';
-import { OrderItem, OrderStatus, OrderSummary } from '../../dynamoDbTypes';
+import { OrderItem, OrderStatus, OrderSummary, UserAddress } from '../../dynamoDbTypes';
 import { CartItem } from '../../types';
 
 let stripeInstance: Stripe | null = null;
@@ -16,6 +16,7 @@ type Event = {
             fullPrice: number;
             userId: string;
             orderId: string;
+            address: UserAddress;
         };
     };
 };
@@ -26,7 +27,7 @@ export const handler = async (event: Event) => {
     }
     const { totalPrice, token, originalData } = event;
 
-    const { userId, orderId } = originalData.body;
+    const { userId, orderId, address } = originalData.body;
 
     const PK = `USER#${userId}` as OrderSummary['PK'];
     const SK: OrderSummary['SK'] = `ORDER#${orderId}`;
@@ -39,7 +40,7 @@ export const handler = async (event: Event) => {
             SK,
             total_amount: totalPrice,
             currency: "usd",
-            shipping_address: "Placeholder",
+            shipping_address: JSON.stringify(address),
             status: OrderStatus.PENDING,
             orderId,
             sessionId: session.id,

@@ -68,7 +68,7 @@ export const addToCart = async (params: AddToCartParams): Promise<void> => {
     await docClient.send(command);
 };
 
-export const getCart = async (userId: string) => {
+export const getCart = async (userId: string): Promise<UserCart[]> => {
     const commandInput: QueryCommandInput = {
         TableName: tableName,
         KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
@@ -80,7 +80,7 @@ export const getCart = async (userId: string) => {
 
     const command = new QueryCommand(commandInput);
     const response = await docClient.send(command);
-    return response.Items;
+    return response.Items as UserCart[];
 };
 
 export const getCartItems = async (userId: string): Promise<UserCart[]> => {
