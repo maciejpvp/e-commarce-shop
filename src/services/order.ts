@@ -95,32 +95,6 @@ export const getOrderToken = async (PK: string, SK: string): Promise<string> => 
 
 export const getOrderItems = async (
     orderId: string
-): Promise<{ PK: string; SK: string }[]> => {
-    const items: Record<string, any>[] = [];
-    let lastEvaluatedKey: any = undefined;
-
-    do {
-        const response = await docClient.send(
-            new QueryCommand({
-                TableName: TABLE_NAME,
-                KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
-                ExpressionAttributeValues: {
-                    ":pk": `ORDER#${orderId}`,
-                    ":sk": "ITEM#",
-                },
-                ExclusiveStartKey: lastEvaluatedKey,
-            })
-        );
-
-        if (response.Items) items.push(...response.Items);
-        lastEvaluatedKey = response.LastEvaluatedKey;
-    } while (lastEvaluatedKey);
-
-    return items.map((item) => ({ PK: item.PK, SK: item.SK }));
-};
-
-export const getOrderItemsTyped = async (
-    orderId: string
 ): Promise<OrderItem[]> => {
     const items: OrderItem[] = [];
     let lastEvaluatedKey: any = undefined;

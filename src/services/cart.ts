@@ -11,6 +11,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "../utils/docClient";
 import { UserCart } from "../dynamoDbTypes";
+import { executeBatchWrite } from "../utils/db";
 
 const tableName = process.env.TABLE_NAME!;
 
@@ -137,3 +138,15 @@ export const deleteCartItem = async (
     });
     await docClient.send(command);
 };
+
+export const emptyCart = async (items: UserCart[]): Promise<void> => {
+    if (items.length === 0) return;
+
+    const deleteRequests = items.map(item => ({
+        DeleteRequest: {
+            Key: { PK: item.PK, SK: item.SK }
+        }
+    }));
+
+    await executeBatchWrite(tableName, deleteRequests);
+}; 

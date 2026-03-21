@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { getSessionId, updateOrderStatus } from "../../services/order";
 import { getStripe } from "../../utils/getStripe";
+import { emptyCart, getCartItems } from "../../services/cart";
 
 let stripeInstance: Stripe | null = null;
 
@@ -20,15 +21,20 @@ export const handler = async (event: EventType) => {
     const { status, order } = event;
 
     const isSuccess = status === "SUCCESS";
-
-    await updateOrderStatus(order, isSuccess ? "PAID" : "CANCELLED");
-    
     const orderId = order.SK.split("#")[1];
     const userId = order.PK.split("#")[1];
+
+    await updateOrderStatus(order, isSuccess ? "PAID" : "CANCELLED");
+
+    // Empty cart if order was successful
+    if (isSuccess) {
+        const cartItems = await getCartItems(userId);
+        await emptyCart(cartItems);
+    }
     
     const sessionId = await getSessionId(order.PK, order.SK);
-    console.log(`@@@ Session ID: ${sessionId}`);
 
+    // If order failed, expire session to prevent user from paying for the order
     if (!isSuccess) {
         await expireSession(sessionId);
     }

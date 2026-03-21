@@ -1,7 +1,7 @@
 import { OrderItem } from "../../dynamoDbTypes";
 import { sendEmail } from "../../utils/sendEmail";
 import { generateReceiptHTML } from "./generateReceipt";
-import { getOrderItemsTyped } from "../../services/order";
+import { getOrderItems } from "../../services/order";
 import { getProductsByIds } from "../../services/user";
 import { fetchUserEmail } from "../../services/user";
 
@@ -9,7 +9,7 @@ export const handler = async (event: any) => {
     const orderId = event.orderId;
     const userId = event.userId;
 
-    const items: OrderItem[] = await getOrderItemsTyped(orderId);
+    const items: OrderItem[] = await getOrderItems(orderId);
     const productIds = items.map((item) => item.SK.split("#")[1]);
     const products = await getProductsByIds(productIds);
 
