@@ -1,6 +1,7 @@
 import { GetCommand, GetCommandInput } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "../../utils/docClient";
 import { validate } from "./schema";
+import { withCors } from "../../utils/cors";
 
 const tableName = process.env.TABLE_NAME;
 
@@ -36,14 +37,14 @@ export const handler = async (event: any) => {
     const sessionUrl = await fetchCheckoutUrl(validatedData.userId, validatedData.orderId);
 
     if (!sessionUrl) {
-        return {
+        return withCors({
             statusCode: 404,
             body: JSON.stringify({ message: "Checkout not found" }),
-        };
+        });
     }
 
-    return {
+    return withCors({
         statusCode: 200,
         body: JSON.stringify({ sessionUrl }),
-    };      
+    });
 };

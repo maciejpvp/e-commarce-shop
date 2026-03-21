@@ -101,11 +101,20 @@
       "Catch": [
         {
           "ErrorEquals": [
+            "States.Timeout"
+          ],
+          "Comment": "TimeLimitForayment",
+          "Next": "Finalize Order",
+          "Output": "{% {\n  \"status\": \"FAILED\",\n  \"processedAt\": $now(),\n  \"data\": $states.input,\n  \"order\": {\n    \"PK\": \"USER#\" & $states.input.body.userId,\n    \"SK\": \"ORDER#\" & $states.input.body.orderId\n  }\n} %}"
+        },
+        {
+          "ErrorEquals": [
             "States.ALL"
           ],
           "Next": "CleanUp Order Record"
         }
-      ]
+      ],
+      "TimeoutSeconds": 600
     },
     "CleanUp Order Record": {
       "Type": "Task",

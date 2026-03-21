@@ -137,6 +137,7 @@ module "unreserve_stock_lambda" {
     {
       Action = [
         "dynamodb:Query",
+        "dynamodb:UpdateItem",
         "dynamodb:TransactWriteItems"
       ]
       Effect   = "Allow"
@@ -161,11 +162,24 @@ module "finalize_order_lambda" {
   extra_policy_statements = [
     {
       Action = [
-        "dynamodb:UpdateItem"
+        "dynamodb:UpdateItem",
+        "dynamodb:GetItem"
       ]
       Effect   = "Allow"
       Resource = [var.table_arn]
-    }
+    },
+    {
+      Action = [
+        "ssm:GetParameter"
+      ]
+      Effect   = "Allow"
+      Resource = ["arn:aws:ssm:eu-central-1:445567075183:parameter/e-commerce-store/dev/stripe-secret-key"]
+    },
+    {
+      Action   = ["kms:Decrypt"]
+      Effect   = "Allow"
+      Resource = ["*"]
+    },
   ]
 }
 
@@ -250,6 +264,13 @@ module "init_checkout_lambda" {
       ]
       Effect   = "Allow"
       Resource = ["*"]
+    },
+    {
+      Action = [
+        "dynamodb:GetItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
     }
   ]
 

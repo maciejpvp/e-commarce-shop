@@ -1,6 +1,7 @@
 import { fetchAllOrderItemsForUnreserve, unreserveStockTransaction } from "../../services/order";
 
 export const handler = async (event: any) => {
+    console.log(`EVENT: ${JSON.stringify(event)}`);
     if (event.isSuccess) return;
 
     const { orderId } = event;

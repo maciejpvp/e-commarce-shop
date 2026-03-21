@@ -57,6 +57,23 @@ export const updateOrderStatus = async (
     await docClient.send(command);
 };
 
+export const getSessionId = async (PK: string, SK: string): Promise<string> => {
+    const command = new GetCommand({
+        TableName: TABLE_NAME,
+        Key: { PK, SK },
+        ProjectionExpression: "#s",
+        ExpressionAttributeNames: { "#s": "sessionId" },
+    });
+
+    const response = await docClient.send(command);
+    const item = response.Item as OrderSummary | undefined;
+    if (!item) {
+        throw new Error(`Order not found for PK: ${PK}, SK: ${SK}`);
+    }
+
+    return item.sessionId;
+};
+
 export const getOrderToken = async (PK: string, SK: string): Promise<string> => {
     const command = new GetCommand({
         TableName: TABLE_NAME,
