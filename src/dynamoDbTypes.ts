@@ -78,6 +78,8 @@ export interface OrderSummary extends BaseItem {
     total_amount: number;
     currency: string;
     shipping_address: string; // Address ID
+    summary: string;
+    createdAt: ISO8601;
 }
 
 export interface OrderItem extends BaseItem {

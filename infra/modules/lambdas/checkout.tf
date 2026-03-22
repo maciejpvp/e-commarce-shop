@@ -163,7 +163,9 @@ module "finalize_order_lambda" {
     {
       Action = [
         "dynamodb:UpdateItem",
-        "dynamodb:GetItem"
+        "dynamodb:GetItem",
+        "dynamodb:Query",
+        "dynamodb:BatchWriteItem"
       ]
       Effect   = "Allow"
       Resource = [var.table_arn]

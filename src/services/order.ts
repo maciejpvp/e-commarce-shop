@@ -3,6 +3,7 @@ import {
     BatchWriteCommandInput,
     DeleteCommand,
     GetCommand,
+    GetCommandInput,
     PutCommand,
     PutCommandInput,
     QueryCommand,
@@ -35,23 +36,43 @@ export const saveOrderItem = async (orderItem: OrderItem): Promise<void> => {
     await docClient.send(command);
 };
 
-export const updateOrderStatus = async (
-    order: { PK: string; SK: string },
-    status: "PAID" | "CANCELLED"
-): Promise<void> => {
+export const updateOrderStatus = async ({   
+    order,
+    status,
+    attributesToRemove
+}: {
+    order: { PK: string; SK: string };
+    status: "PAID" | "CANCELLED";
+    attributesToRemove?: string[];
+}): Promise<void> => {
+
+    let updateExpression = "set #s = :s";
+    let expressionAttributeNames: Record<string, string> = {
+        "#s": "status",
+    };
+    let expressionAttributeValues: Record<string, string> = {
+        ":s": status,
+    };
+
+    if (attributesToRemove && attributesToRemove.length > 0) {
+        const removePlaceholders = attributesToRemove.map(attr => `#${attr}`);
+        
+        updateExpression += " REMOVE " + removePlaceholders.join(", ");
+        
+        attributesToRemove.forEach((attribute) => {
+        expressionAttributeNames[`#${attribute}`] = attribute;
+    });
+}
+
     const commandInput: UpdateCommandInput = {
         TableName: TABLE_NAME,
         Key: {
             PK: order.PK,
             SK: order.SK,
         },
-        UpdateExpression: "set #s = :s",
-        ExpressionAttributeNames: {
-            "#s": "status",
-        },
-        ExpressionAttributeValues: {
-            ":s": status,
-        },
+        UpdateExpression: updateExpression,
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
     };
     const command = new UpdateCommand(commandInput);
     await docClient.send(command);
@@ -117,6 +138,70 @@ export const getOrderItems = async (
     } while (lastEvaluatedKey);
 
     return items;
+};
+
+interface OrdersResponse {
+    orders: OrderSummary[];
+    nextToken?: string;
+}
+
+export const getOrderSummary = async(userId: string, orderId:string): Promise<OrderSummary> => {
+    const commandInput: GetCommandInput = {
+        TableName: TABLE_NAME,
+        Key: { PK: `USER#${userId}`, SK: `ORDER#${orderId}` },
+    };
+    const command = new GetCommand(commandInput);
+    const response = await docClient.send(command);
+    const item = response.Item as OrderSummary | undefined;
+
+    const summary = JSON.parse(item?.summary || "{}") as OrderSummary;
+
+    return summary;
+}
+
+export const getOrdersList = async ({
+    userId,
+    limit = 10,
+    nextToken,
+}: {
+    userId: string;
+    limit?: number;
+    nextToken?: string; 
+}): Promise<OrdersResponse> => {
+    
+    const exclusiveStartKey = nextToken 
+        ? JSON.parse(Buffer.from(nextToken, 'base64').toString()) 
+        : undefined;
+
+    const response = await docClient.send(
+        new QueryCommand({
+            TableName: TABLE_NAME,
+            KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
+            ExpressionAttributeValues: {
+                ":pk": `USER#${userId}`,
+                ":sk": "ORDER#",
+            },
+            Limit: limit,
+            ExclusiveStartKey: exclusiveStartKey,
+        })
+    );
+
+    const newNextToken = response.LastEvaluatedKey 
+        ? Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString('base64')
+        : undefined;
+
+    if (!response.Items || response.Items.length === 0) {
+        return {
+            orders: [],
+            nextToken: newNextToken,
+        };
+    }
+    const orders = response.Items as OrderSummary[];
+
+    return {
+        orders,
+        nextToken: newNextToken,
+    };
 };
 
 export const deleteOrderSummary = async (PK: string, SK: string): Promise<void> => {

@@ -127,6 +127,7 @@ export function calculateSummary(props: CalculateCheckoutProps): CheckoutSummary
             discountApplied: parseFloat(lineDiscount.toFixed(2)),
             subtotal: parseFloat((lineTotal - lineDiscount).toFixed(2)),
             appliedRules,
+            media: item.media,
         });
     }
 

@@ -1,4 +1,5 @@
 import { UserAddress } from "../../dynamoDbTypes";
+import { EnrichedCartItem } from "../validateCart";
 
 /**
  * A single enriched cart item as produced by the validateCart step,
@@ -14,6 +15,8 @@ export type CartItemInput = {
     /** Unit price in USD dollars (from Product.price) */
     price: number;
     quantity: number;
+    /** Product media (images) */
+    media?: any[];
 };
 
 /**
@@ -42,7 +45,7 @@ export type StepFunctionEvent = {
     address?: UserAddress;
     couponCode?: string;
     /** Enriched cart items produced by the preceding validateCart step */
-    cartItems: CartItemInput[];
+    cartItems: EnrichedCartItem[];
 };
 
 /**
@@ -68,6 +71,8 @@ export type LineItemSummary = {
     subtotal: number;
     /** IDs of rules applied to this line item */
     appliedRules: string[];
+    /** Product media (images) */
+    media?: any[];
 };
 
 export type CheckoutSummary = {

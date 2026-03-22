@@ -44,14 +44,15 @@ module "lambdas" {
 module "checkout" {
   source = "./modules/checkout"
 
-  Environment                        = var.Environment
-  validate_cart_lambda_arn           = module.lambdas.validate_cart_lambda_invoke_arn
-  reserve_stock_lambda_arn           = module.lambdas.reserve_stock_lambda_invoke_arn
-  create_checkout_session_lambda_arn = module.lambdas.create_checkout_session_lambda_invoke_arn
-  finalize_order_lambda_arn          = module.lambdas.finalize_order_lambda_invoke_arn
-  unreserve_stock_lambda_arn         = module.lambdas.unreserve_stock_lambda_invoke_arn
-  cleanup_lambda_arn                 = module.lambdas.cleanup_lambda_invoke_arn
-  send_receipt_lambda_arn            = module.lambdas.send_receipt_lambda_arn
+  Environment                           = var.Environment
+  validate_cart_lambda_arn              = module.lambdas.validate_cart_lambda_invoke_arn
+  reserve_stock_lambda_arn              = module.lambdas.reserve_stock_lambda_invoke_arn
+  create_checkout_session_lambda_arn    = module.lambdas.create_checkout_session_lambda_invoke_arn
+  finalize_order_lambda_arn             = module.lambdas.finalize_order_lambda_invoke_arn
+  unreserve_stock_lambda_arn            = module.lambdas.unreserve_stock_lambda_invoke_arn
+  cleanup_lambda_arn                    = module.lambdas.cleanup_lambda_invoke_arn
+  send_receipt_lambda_arn               = module.lambdas.send_receipt_lambda_arn
+  calculate_checkout_summary_lambda_arn = module.lambdas.calculate_checkout_summary_lambda_arn
 }
 
 // --- API GATEWAY ---
@@ -155,6 +156,12 @@ module "api_gateway" {
             lambda      = module.lambdas.edit_address_lambda_invoke_arn
             permissions = []
           }
+        }
+      },
+      orders = {
+        GET = {
+          lambda      = module.lambdas.get_order_list_lambda_invoke_arn
+          permissions = []
         }
       }
     }

@@ -2,22 +2,19 @@ import Stripe from 'stripe';
 import { getStripe } from '../../utils/getStripe';
 import { saveOrderSummary, saveOrderItem } from '../../services/order';
 import { OrderItem, OrderStatus, OrderSummary, UserAddress } from '../../dynamoDbTypes';
-import { CartItem } from '../../types';
+import { EnrichedCartItem } from '../validateCart';
+import { CheckoutSummary } from '../calculate-checkout-summary/types';
 
 let stripeInstance: Stripe | null = null;
 
 type Event = {
-    totalPrice: number;
-    currency: string;
     token: string;
-    originalData: {
-        body: {
-            cartItems: CartItem[];
-            fullPrice: number;
-            userId: string;
-            orderId: string;
-            address: UserAddress;
-        };
+    input: {
+        userId: string;
+        orderId: string;
+        address: UserAddress;
+        cartItems: EnrichedCartItem[];
+        summary: CheckoutSummary;
     };
 };
 
@@ -25,9 +22,16 @@ export const handler = async (event: Event) => {
     if (!stripeInstance) {
         stripeInstance = await getStripe();
     }
-    const { totalPrice, token, originalData } = event;
 
-    const { userId, orderId, address } = originalData.body;
+    console.log("EVENT:", JSON.stringify(event));
+
+    const { token, input } = event;
+
+    console.log("INPUT:", input);
+
+    const { userId, orderId, address, summary, cartItems } = input;
+
+    const totalPrice = summary.totalAmount;
 
     const PK = `USER#${userId}` as OrderSummary['PK'];
     const SK: OrderSummary['SK'] = `ORDER#${orderId}`;
@@ -43,6 +47,8 @@ export const handler = async (event: Event) => {
             shipping_address: JSON.stringify(address),
             status: OrderStatus.PENDING,
             orderId,
+            summary: JSON.stringify(summary),
+            createdAt: new Date().toISOString(),
             sessionId: session.id,
             sessionUrl: session.url as string,
             token,
@@ -50,7 +56,7 @@ export const handler = async (event: Event) => {
 
         await saveOrderSummary(object);
 
-        const orderItems: OrderItem[] = originalData.body.cartItems.map((item) => ({
+        const orderItems: OrderItem[] = cartItems.map((item) => ({
             PK: `ORDER#${orderId}`,
             SK: `ITEM#${item.productId}`,
             product_name: item.name,

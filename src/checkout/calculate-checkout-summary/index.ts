@@ -57,6 +57,7 @@ async function fetchEnrichedCartItems(userId: string): Promise<CartItemInput[]> 
             categories: await getProductCategories(productId),
             price: product.price,
             quantity: row.quantity,
+            media: product.media,
         };
     }));
 }
@@ -149,5 +150,12 @@ export const handler = async (event: APIGatewayProxyEvent | StepFunctionEvent) =
     // Step Function path — let errors propagate so the workflow can catch them
     const props = buildPropsFromStepFunction(event as StepFunctionEvent);
     const summary = calculateSummary(props);
-    return stepFunctionSuccess(summary);
+    if (isApiGateway) {
+        return stepFunctionSuccess(summary);
+    } else {
+        return {
+            ...event,
+            summary,
+        }
+    }
 };

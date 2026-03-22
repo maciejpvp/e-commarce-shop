@@ -24,7 +24,11 @@ export const handler = async (event: EventType) => {
     const orderId = order.SK.split("#")[1];
     const userId = order.PK.split("#")[1];
 
-    await updateOrderStatus(order, isSuccess ? "PAID" : "CANCELLED");
+    await updateOrderStatus({ 
+        order, 
+        status: isSuccess ? "PAID" : "CANCELLED",
+        attributesToRemove: ["sessionUrl", "sessionId", "token"]
+    });
 
     // Empty cart if order was successful
     if (isSuccess) {

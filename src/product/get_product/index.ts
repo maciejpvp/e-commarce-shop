@@ -25,18 +25,21 @@ export const handler = async (event: any) => {
         const validatedAttributes = validateGetProduct(event.pathParameters);
         const productId = validatedAttributes.productId;
 
-        const product = (await getProductItem([productId]))[0];
+        const product = (await getProductItem([productId])).at(0);
+        console.log(`Product: ${JSON.stringify(product)}`);
         const categories = await getProductCategories(productId);
 
         console.log(categories);
 
         const productWithMappedCategories = {
             ...product,
-            categories: categories.map((category: any) => {
-                const slug = category.SK.split("#")[1];
-                return { name: unslugify(slug), slug };
-            }),
+            categories: categories.map((slug: string) => {
+                return { 
+            name: unslugify(slug), 
+            slug: slug 
         };
+    }),
+};
 
         return withCors({
             statusCode: 200,

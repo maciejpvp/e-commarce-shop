@@ -3,7 +3,7 @@ import { SESClient, SendEmailCommand, SendEmailCommandInput } from "@aws-sdk/cli
 const REGION = "eu-central-1";
 const sesClient = new SESClient({ region: REGION });
 
-export const sendEmail = async (recipient: string, htmlBody: string): Promise<void> => {
+export const sendEmail = async (recipient: string, htmlBody: string, orderId: string): Promise<void> => {
     const params: SendEmailCommandInput = {
         Destination: {
             ToAddresses: [recipient],
@@ -16,12 +16,12 @@ export const sendEmail = async (recipient: string, htmlBody: string): Promise<vo
                 },
                 Text: {
                     Charset: "UTF-8",
-                    Data: "Proszę użyć czytnika obsługującego HTML.",
+                    Data: "Thank you for your order!",
                 },
             },
             Subject: {
                 Charset: "UTF-8",
-                Data: "Wiadomość z domeny zahut.me",
+                Data: `Thank you for your order! ${orderId}`,
             },
         },
         Source: "noreply@zahut.me",

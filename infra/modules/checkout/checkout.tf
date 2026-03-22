@@ -43,6 +43,8 @@ resource "aws_iam_role_policy" "sfn_lambda_policy" {
           "${var.cleanup_lambda_arn}:*",
           var.send_receipt_lambda_arn,
           "${var.send_receipt_lambda_arn}:*",
+          var.calculate_checkout_summary_lambda_arn,
+          "${var.calculate_checkout_summary_lambda_arn}:*",
         ]
       }
     ]

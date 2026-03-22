@@ -29,3 +29,7 @@ variable "cleanup_lambda_arn" {
 variable "send_receipt_lambda_arn" {
   type = string
 }
+
+variable "calculate_checkout_summary_lambda_arn" {
+  type = string
+}

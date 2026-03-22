@@ -1,36 +1,89 @@
 import React from "react";
 
 interface ReceiptHeaderProps {
-  orderNumber: string;
+  orderId: string;
   date: string;
+  currency: string;
 }
 
 export const ReceiptHeader: React.FC<ReceiptHeaderProps> = ({
-  orderNumber,
+  orderId,
   date,
+  currency,
 }) => {
   return (
-    <table
-      width="100%"
-      cellPadding="0"
-      cellSpacing="0"
-      style={{ borderBottom: "2px solid #f6f6f6", paddingBottom: "20px" }}
-    >
+    <table width="100%" cellPadding="0" cellSpacing="0">
       <tbody>
         <tr>
-          <td>
-            <h1 style={{ margin: 0, color: "#4a3728", fontSize: "24px" }}>
-              Brew & Bean
-            </h1>
-            <p style={{ fontSize: "14px", color: "#888", margin: "5px 0 0 0" }}>
-              Your Order Receipt
-            </p>
+          {/* ── Brand wordmark ── */}
+          <td style={{ verticalAlign: "bottom" }}>
+            {/* Eyebrow label */}
+            <div
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontSize: "10px",
+                fontWeight: "700",
+                letterSpacing: "3px",
+                textTransform: "uppercase",
+                color: "#775a19",
+                marginBottom: "10px",
+              }}
+            >
+              Order Receipt
+            </div>
+            {/* Serif headline */}
+            <div
+              style={{
+                fontFamily: "'Georgia', 'Noto Serif', serif",
+                fontSize: "36px",
+                fontWeight: "400",
+                letterSpacing: "-0.5px",
+                lineHeight: "1",
+                color: "#fbf9f5",
+              }}
+            >
+              Brew &amp; Bean
+            </div>
+            {/* Tagline */}
+            <div
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontSize: "12px",
+                color: "rgba(251,249,245,0.45)",
+                marginTop: "8px",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Artisanal Coffee &amp; Equipment
+            </div>
           </td>
-          <td style={{ textAlign: "right", verticalAlign: "top" }}>
-            <p style={{ fontWeight: "bold", margin: 0, fontSize: "14px" }}>
-              Order #{orderNumber}
-            </p>
-            <p style={{ fontSize: "13px", margin: 0, color: "#888" }}>{date}</p>
+
+          {/* ── Order metadata ── */}
+          <td style={{ textAlign: "right", verticalAlign: "bottom" }}>
+            {/* Order number */}
+            <div
+              style={{
+                fontFamily: "'Georgia', 'Noto Serif', serif",
+                fontSize: "15px",
+                color: "#fbf9f5",
+                letterSpacing: "0.5px",
+                marginBottom: "6px",
+              }}
+            >
+              #{orderId}
+            </div>
+
+            {/* Date */}
+            <div
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontSize: "12px",
+                color: "rgba(251,249,245,0.45)",
+                letterSpacing: "0.3px",
+              }}
+            >
+              {date}
+            </div>
           </td>
         </tr>
       </tbody>
