@@ -1,5 +1,5 @@
 import { validateGetProductsForCategory } from "./schema";
-import { getProductItem, getProductsByCategory } from "../../services/product";
+import { getProductItem, getProductsByCategory, transformProduct } from "../../services/product";
 import { withCors } from "../../utils/cors";
 
 export const handler = async (event: any) => {
@@ -9,15 +9,11 @@ export const handler = async (event: any) => {
         const validatedAttributes = validateGetProductsForCategory(pathParameters);
         const category = validatedAttributes.category;
 
-        const products = await getProductsByCategory(category);
-
-        const productIds = products.map((product) => product.PK.split("#")[1]);
-
-        const productDetails = await getProductItem(productIds);
+        const products = await getProducts(category);
 
         return withCors({
             statusCode: 200,
-            body: JSON.stringify({ products: productDetails }),
+            body: JSON.stringify({ products }),
         });
     } catch (error: any) {
         console.error('Error getting products:', error);
@@ -27,3 +23,26 @@ export const handler = async (event: any) => {
         });
     }
 };
+
+// Helpers
+
+async function getProducts (category: string) {
+    // Get PK and SK of each product in category
+    const productsList = await getProductsByCategory(category);
+
+    if (!productsList || !productsList.length) {
+        return [];
+    }
+
+    // Get product details for each product
+    const productIds = productsList.map((product) => product.PK.split("#")[1]);
+    const products = await getProductItem(productIds);
+
+    // Map products to frontend format
+    const productsWithMappedCategories = products.map((product) => {
+        // It wont be used in frontend, so we can optimalize it and put dummy category
+        return transformProduct(product, [category]);
+    });
+
+    return productsWithMappedCategories;
+}

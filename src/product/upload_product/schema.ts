@@ -7,8 +7,10 @@ const schema = Joi.object<UploadProductEvent>({
     description: Joi.string().min(10).max(1000).required(),
     stock: Joi.number().min(0).required(),
     categories: Joi.array().items(Joi.string().min(1).max(100)).min(1).required(),
+    tech_spec: Joi.string().min(10).max(1000),
+    attributes: Joi.string().min(10).max(1000),
     media: Joi.array().items(Joi.object({
-        type: Joi.string().valid("image/", "video/").required(),
+        type: Joi.string().pattern(/^(image|video)\//).required(),
         id: Joi.string().min(1).max(15).required(),
         isMain: Joi.boolean().required(),
     })).min(1).required(),

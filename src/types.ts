@@ -5,6 +5,8 @@ export type ProductMetadata = {
     description: string;
     price: number;
     stock: number;
+    tech_spec: string;
+    attributes: string;
     media: { type: "image/" | "video/"; key: string; isMain: boolean }[];
     created_at: number;
     version: number;

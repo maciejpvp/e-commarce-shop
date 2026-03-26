@@ -1,4 +1,4 @@
-import { getProductCategories, getProductItem } from "../../services/product";
+import { getProductCategories, getProductItem, transformProduct } from "../../services/product";
 import { withCors } from "../../utils/cors";
 import * as Joi from "joi";
 
@@ -14,32 +14,20 @@ export const validateGetProduct = (attributes: any) => {
     return value;
 };
 
-const unslugify = (slug: string) => {
-    return slug
-        .replace(/-/g, ' ') 
-        .replace(/\b\w/g, (char) => char.toUpperCase()); 
-};
-
 export const handler = async (event: any) => {
     try {
         const validatedAttributes = validateGetProduct(event.pathParameters);
         const productId = validatedAttributes.productId;
 
         const product = (await getProductItem([productId])).at(0);
-        console.log(`Product: ${JSON.stringify(product)}`);
+        if (!product) {
+            throw new Error("Product not found");
+        }
         const categories = await getProductCategories(productId);
 
-        console.log(categories);
+        const productWithMappedCategories = transformProduct(product, categories);
 
-        const productWithMappedCategories = {
-            ...product,
-            categories: categories.map((slug: string) => {
-                return { 
-            name: unslugify(slug), 
-            slug: slug 
-        };
-    }),
-};
+        console.log(productWithMappedCategories);
 
         return withCors({
             statusCode: 200,

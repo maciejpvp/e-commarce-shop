@@ -101,11 +101,9 @@ export interface Product extends BaseItem {
     description: string;
     price: number;
     stock: number;
-    media: Array<{
-        type: string;
-        key: string;
-        isMain: boolean;
-    }>;
+    media: string[];
+    tech_spec?: string;
+    attributes?: string;
 }
 
 export interface ProductCategory extends BaseItem {

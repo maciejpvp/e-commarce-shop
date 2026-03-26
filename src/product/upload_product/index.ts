@@ -24,6 +24,8 @@ export const handler = async (
             description: validatedBody.description,
             price: validatedBody.price,
             stock: validatedBody.stock,
+            tech_spec: validatedBody.tech_spec,
+            attributes: validatedBody.attributes,
             media: presignedPosts.map((post) => ({
                 type: post.type,
                 key: post.key,

@@ -3,6 +3,8 @@ import { executeQuery } from "../utils/db";
 import { docClient } from "../utils/docClient";
 import { ProductMetadata, ProductCategory } from "../types";
 import { Product } from "../dynamoDbTypes";
+import { ResponseProduct } from "../product/upload_product/types";
+import { unslugify } from "../utils/slugify";
 
 const tableName = process.env.TABLE_NAME!;
 const INDEX = "GSI1";
@@ -19,6 +21,11 @@ export const getProductsByCategory = (category: string) => {
     return executeQuery(command);
 };
 
+/**
+ * Get product metadata for multiple product IDs
+ * @param productIds - Array of product IDs
+ * @returns Array of product metadata
+ */
 export const getProductItem = async (productIds: string[]): Promise<Product[]> => {
     const products: Product[] = [];
     for (const productId of productIds) {
@@ -105,4 +112,22 @@ export const updateProduct = async ({
 
     const response = await docClient.send(command);
     return response.Attributes;
+};
+
+
+export const transformProduct = (product: Product, categories: string[]): ResponseProduct => {
+    return {
+        id: product.PK.split("#")[1],
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        categories: categories.map((category) => ({
+            name: unslugify(category),
+            slug: category,
+        })),
+        tech_spec: product.tech_spec ? JSON.parse(product.tech_spec) : undefined,
+        attributes: product.attributes ? JSON.parse(product.attributes): undefined,
+        media: Array.isArray(product.media) ? product.media : JSON.parse(product.media as unknown as string),
+    };
 };
