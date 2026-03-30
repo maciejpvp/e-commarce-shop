@@ -62,3 +62,9 @@ const retryBatch = async (
         return retryBatch(tableName, UnprocessedItems[tableName]!, maxRetries, attempt + 1);
     }
 };
+
+export const encodeToken = (key?: Record<string, any>) => 
+  key ? Buffer.from(JSON.stringify(key)).toString("base64") : undefined;
+
+export const decodeToken = (token?: string) => 
+  token ? JSON.parse(Buffer.from(token, "base64").toString("utf-8")) : undefined;

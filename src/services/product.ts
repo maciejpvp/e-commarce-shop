@@ -1,5 +1,5 @@
 import { QueryCommand, PutCommand, UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
-import { executeQuery } from "../utils/db";
+import { decodeToken, encodeToken, executeQuery } from "../utils/db";
 import { docClient } from "../utils/docClient";
 import { ProductMetadata, ProductCategory } from "../types";
 import { Product } from "../dynamoDbTypes";
@@ -11,14 +11,32 @@ const INDEX = "GSI1";
 
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
-export const getProductsByCategory = (category: string) => {
-    const command = new QueryCommand({
-        TableName: tableName,
-        IndexName: INDEX,
-        KeyConditionExpression: "gsi1pk = :pk",
-        ExpressionAttributeValues: { ":pk": `CATEGORY#${category}` },
-    });
-    return executeQuery(command);
+export const getProductsByCategory = async ({
+  category,
+  limit = 10,
+  nextToken
+}: {
+  category: string;
+  limit?: number;
+  nextToken?: string;
+}) => {
+  const command = new QueryCommand({
+    TableName: tableName,
+    IndexName: INDEX,
+    KeyConditionExpression: "gsi1pk = :pk",
+    ExpressionAttributeValues: { 
+      ":pk": `CATEGORY#${category}` 
+    },
+    Limit: Math.max(1, Number(limit)),
+    ExclusiveStartKey: decodeToken(nextToken),
+  });
+
+  const { Items = [], LastEvaluatedKey } = await docClient.send(command);
+
+  return {
+    products: Items,
+    nextToken: encodeToken(LastEvaluatedKey),
+  };
 };
 
 /**
@@ -129,5 +147,6 @@ export const transformProduct = (product: Product, categories: string[]): Respon
         tech_spec: product.tech_spec ? JSON.parse(product.tech_spec) : undefined,
         attributes: product.attributes ? JSON.parse(product.attributes): undefined,
         media: Array.isArray(product.media) ? product.media : JSON.parse(product.media as unknown as string),
+        version: product.version,
     };
 };

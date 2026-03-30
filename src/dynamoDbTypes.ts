@@ -104,6 +104,7 @@ export interface Product extends BaseItem {
     media: string[];
     tech_spec?: string;
     attributes?: string;
+    version: number;
 }
 
 export interface ProductCategory extends BaseItem {

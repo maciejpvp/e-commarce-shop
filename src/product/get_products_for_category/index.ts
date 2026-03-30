@@ -5,15 +5,16 @@ import { withCors } from "../../utils/cors";
 export const handler = async (event: any) => {
     try {
         const pathParameters = event.pathParameters || {};
+        const queryParameters = event.queryStringParameters || {};
 
-        const validatedAttributes = validateGetProductsForCategory(pathParameters);
-        const category = validatedAttributes.category;
+        const validatedAttributes = validateGetProductsForCategory({ ...pathParameters, ...queryParameters });
+        const { category, limit, nextToken } = validatedAttributes;
 
-        const products = await getProducts(category);
+        const result = await getProducts({ category, limit: Number(limit ?? 10), nextToken });
 
         return withCors({
             statusCode: 200,
-            body: JSON.stringify({ products }),
+            body: JSON.stringify(result),
         });
     } catch (error: any) {
         console.error('Error getting products:', error);
@@ -26,12 +27,12 @@ export const handler = async (event: any) => {
 
 // Helpers
 
-async function getProducts (category: string) {
+async function getProducts ({ category, limit, nextToken }: { category: string, limit: number, nextToken?: string }) {
     // Get PK and SK of each product in category
-    const productsList = await getProductsByCategory(category);
+    const { products: productsList, nextToken: newNextToken } = await getProductsByCategory({ category, limit, nextToken });
 
     if (!productsList || !productsList.length) {
-        return [];
+        return { products: [], nextToken: undefined };
     }
 
     // Get product details for each product
@@ -44,5 +45,5 @@ async function getProducts (category: string) {
         return transformProduct(product, [category]);
     });
 
-    return productsWithMappedCategories;
+    return { products: productsWithMappedCategories, nextToken: newNextToken };
 }
