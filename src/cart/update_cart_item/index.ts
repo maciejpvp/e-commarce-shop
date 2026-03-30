@@ -1,4 +1,4 @@
-import { deleteCartItem, updateCartItem } from "../../services/cart";
+import { deleteCartItem, updateCartItem } from "cart-db";
 import { validateUpdateCartItemSchema } from "./schema";
 import { withCors } from "../../utils/cors";
 

@@ -7,6 +7,8 @@ module "add_to_cart_lambda" {
   handler       = "index.handler"
   timeout       = 10
 
+  layers = [var.layers.cart_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -35,6 +37,8 @@ module "update_cart_item_lambda" {
   entry_point   = "src/cart/update_cart_item/index.ts"
   handler       = "index.handler"
   timeout       = 10
+
+  layers = [var.layers.cart_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name
@@ -67,6 +71,8 @@ module "get_cart_lambda" {
   entry_point   = "src/cart/get_cart/index.ts"
   handler       = "index.handler"
   timeout       = 10
+
+  layers = [var.layers.cart_db, var.layers.product_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name

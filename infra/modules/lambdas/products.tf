@@ -7,10 +7,13 @@ module "upload_product_lambda" {
   handler       = "index.handler"
   timeout       = 10
 
+  layers = [var.layers.product_db]
+
   environment_variables = {
     BUCKET_NAME = var.bucket_name
     TABLE_NAME  = var.table_name
   }
+
 
   extra_policy_statements = [
     {
@@ -44,6 +47,8 @@ module "update_product_lambda" {
   handler       = "index.handler"
   timeout       = 10
 
+  layers = [var.layers.product_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -74,6 +79,8 @@ module "get_products_for_category_lambda" {
   entry_point   = "src/product/get_products_for_category/index.ts"
   handler       = "index.handler"
   timeout       = 10
+
+  layers = [var.layers.product_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name
@@ -107,6 +114,8 @@ module "get_product_lambda" {
   handler       = "index.handler"
   timeout       = 10
 
+  layers = [var.layers.product_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -138,6 +147,8 @@ module "create_coupon_lambda" {
   entry_point   = "src/coupon/create_coupon/index.ts"
   handler       = "index.handler"
   timeout       = 10
+
+  layers = [var.layers.product_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name

@@ -1,5 +1,13 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "product-db": ["src/services/product.ts"],
+            "cart-db": ["src/services/cart.ts"],
+            "order-db": ["src/services/order.ts"],
+            "coupon-db": ["src/services/coupon.ts"],
+            "user-db": ["src/services/user.ts"],
+        },
         "target": "ES2022",
         "module": "NodeNext",
         "moduleResolution": "NodeNext",

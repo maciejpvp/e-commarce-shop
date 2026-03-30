@@ -1,4 +1,4 @@
-import { getOrderItems, deleteOrderSummary, batchDeleteOrderItems } from '../../services/order';
+import { getOrderItems, deleteOrderSummary, batchDeleteOrderItems } from 'order-db';
 
 interface StepFunctionErrorEvent {
     Error: string;

@@ -54,3 +54,9 @@ variable "security_mapping" {
   description = "Security mapping for authorizer"
   type        = any
 }
+
+variable "layers" {
+  description = "Map of Lambda Layer ARNs"
+  type        = map(string)
+  default     = {}
+}

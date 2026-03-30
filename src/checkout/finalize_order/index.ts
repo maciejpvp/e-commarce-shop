@@ -1,7 +1,7 @@
 import Stripe from "stripe";
-import { getSessionId, updateOrderStatus } from "../../services/order";
+import { getSessionId, updateOrderStatus } from "order-db";
 import { getStripe } from "../../utils/getStripe";
-import { emptyCart, getCartItems } from "../../services/cart";
+import { emptyCart, getCartItems } from "cart-db";
 
 let stripeInstance: Stripe | null = null;
 

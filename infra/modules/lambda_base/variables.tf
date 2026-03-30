@@ -92,3 +92,9 @@ variable "retention_in_days" {
   type        = number
   default     = 7
 }
+
+variable "layers" {
+  description = "List of Lambda Layer Version ARNs to attach to the function"
+  type        = list(string)
+  default     = []
+}

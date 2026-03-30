@@ -7,6 +7,8 @@ module "validate_cart_lambda" {
   handler       = "index.handler"
   timeout       = 30
 
+  layers = [var.layers.cart_db, var.layers.product_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -34,6 +36,8 @@ module "reserve_stock_lambda" {
   handler       = "index.handler"
   timeout       = 30
 
+  layers = [var.layers.order_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -59,6 +63,8 @@ module "create_checkout_session_lambda" {
   entry_point   = "src/checkout/create_checkout_session/index.ts"
   handler       = "index.handler"
   timeout       = 10
+
+  layers = [var.layers.order_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name
@@ -96,6 +102,8 @@ module "order_payment_reconciler_lambda" {
   handler       = "index.handler"
   timeout       = 10
 
+  layers = [var.layers.order_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -129,6 +137,8 @@ module "unreserve_stock_lambda" {
   handler       = "index.handler"
   timeout       = 30
 
+  layers = [var.layers.order_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -154,6 +164,8 @@ module "finalize_order_lambda" {
   entry_point   = "src/checkout/finalize_order/index.ts"
   handler       = "index.handler"
   timeout       = 30
+
+  layers = [var.layers.order_db, var.layers.cart_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name
@@ -194,6 +206,8 @@ module "cleanup_lambda" {
   handler       = "index.handler"
   timeout       = 30
 
+  layers = [var.layers.order_db]
+
   environment_variables = {
     TABLE_NAME = var.table_name
   }
@@ -219,6 +233,8 @@ module "send_receipt_lambda" {
   entry_point   = "src/checkout/send_receipt/index.ts"
   handler       = "index.handler"
   timeout       = 30
+
+  layers = [var.layers.order_db, var.layers.user_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name
@@ -323,6 +339,8 @@ module "calculate_checkout_summary_lambda" {
   entry_point   = "src/checkout/calculate-checkout-summary/index.ts"
   handler       = "index.handler"
   timeout       = 10
+
+  layers = [var.layers.product_db, var.layers.cart_db]
 
   environment_variables = {
     TABLE_NAME = var.table_name

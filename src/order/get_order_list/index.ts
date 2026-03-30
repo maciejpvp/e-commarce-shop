@@ -1,4 +1,4 @@
-import { getOrdersList } from "../../services/order";
+import { getOrdersList } from "order-db";
 import { withCors } from "../../utils/cors";
 
 export const handler = async (event: any) => {

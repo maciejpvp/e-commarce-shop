@@ -1,5 +1,5 @@
 import { validateGetProductsForCategory } from "./schema";
-import { getProductItem, getProductsByCategory, transformProduct } from "../../services/product";
+import { getProductItem, getProductsByCategory, transformProduct } from "product-db";
 import { withCors } from "../../utils/cors";
 
 export const handler = async (event: any) => {

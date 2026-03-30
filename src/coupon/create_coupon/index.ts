@@ -1,4 +1,4 @@
-import { createCoupon } from "../../services/coupon";
+import { createCoupon } from "coupon-db";
 import { validateCreateCouponSchema } from "./schema";
 import { withCors } from "../../utils/cors";
 

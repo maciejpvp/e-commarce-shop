@@ -1,4 +1,4 @@
-import { fetchAllOrderItemsForUnreserve, unreserveStockTransaction } from "../../services/order";
+import { fetchAllOrderItemsForUnreserve, unreserveStockTransaction } from "order-db";
 
 export const handler = async (event: any) => {
     console.log(`EVENT: ${JSON.stringify(event)}`);

@@ -1,4 +1,4 @@
-import { addToCart, getProductPriceForCart } from "../../services/cart";
+import { addToCart, getProductPriceForCart } from "cart-db";
 import { validateAddToCartSchema } from "./schema";
 import { withCors } from "../../utils/cors";
 

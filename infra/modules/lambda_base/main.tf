@@ -42,8 +42,9 @@ locals {
   relative_dist_path = replace(local.source_file, "${path.module}/", "")
 
   project_root = "${path.module}/../../.."
+  entry_dir    = dirname(var.entry_point)
   all_src_hash = sha256(join("", [
-    for f in fileset(local.project_root, "src/**/*.{ts,js,json}") : filesha256("${local.project_root}/${f}")
+    for f in fileset(local.project_root, "${local.entry_dir}/**/*.{ts,js,json}") : filesha256("${local.project_root}/${f}")
   ]))
 }
 
@@ -77,6 +78,7 @@ resource "aws_lambda_function" "this" {
   handler          = var.handler
   memory_size      = var.memory_size
   timeout          = var.timeout
+  layers           = var.layers
 
   environment {
     variables = var.environment_variables

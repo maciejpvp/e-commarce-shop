@@ -1,4 +1,4 @@
-import { reserveStockTransaction } from "../../services/order";
+import { reserveStockTransaction } from "order-db";
 import { UserAddress } from "../../dynamoDbTypes";
 import { EnrichedCartItem } from "../validateCart";
 

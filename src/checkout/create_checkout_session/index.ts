@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { getStripe } from '../../utils/getStripe';
-import { saveOrderSummary, saveOrderItem } from '../../services/order';
+import { saveOrderSummary, saveOrderItem } from 'order-db';
 import { OrderItem, OrderStatus, OrderSummary, UserAddress } from '../../dynamoDbTypes';
 import { EnrichedCartItem } from '../validateCart';
 import { CheckoutSummary } from '../calculate-checkout-summary/types';

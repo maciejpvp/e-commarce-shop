@@ -1,4 +1,4 @@
-import { QueryCommand, PutCommand, UpdateCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, PutCommand, UpdateCommand, GetCommand, DeleteCommandInput, DeleteCommand } from "@aws-sdk/lib-dynamodb";
 import { decodeToken, encodeToken, executeQuery } from "../utils/db";
 import { docClient } from "../utils/docClient";
 import { ProductMetadata, ProductCategory } from "../types";
@@ -149,4 +149,19 @@ export const transformProduct = (product: Product, categories: string[]): Respon
         media: Array.isArray(product.media) ? product.media : JSON.parse(product.media as unknown as string),
         version: product.version,
     };
+};
+
+export const removeCategoryFromProduct = async (props: {productId: string, category: string}) => {
+    const { productId, category} = props;
+
+    const commandInput: DeleteCommandInput = {
+        TableName: tableName,
+        Key: {
+            PK: `PRODUCT#${productId}`,
+            SK: `CATEGORY#${category}`,
+        },
+    };
+
+    const command = new DeleteCommand(commandInput);
+    await docClient.send(command);
 };

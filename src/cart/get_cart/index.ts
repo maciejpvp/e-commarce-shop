@@ -1,6 +1,6 @@
 import { Product } from "../../dynamoDbTypes";
-import { getCart } from "../../services/cart";
-import { getProductItem } from "../../services/product";
+import { getCart } from "cart-db";
+import { getProductItem } from "product-db";
 import { withCors } from "../../utils/cors";
 
 type CartItem = {

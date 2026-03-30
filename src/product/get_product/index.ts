@@ -1,4 +1,4 @@
-import { getProductCategories, getProductItem, transformProduct } from "../../services/product";
+import { getProductCategories, getProductItem, transformProduct } from "product-db";
 import { withCors } from "../../utils/cors";
 import * as Joi from "joi";
 

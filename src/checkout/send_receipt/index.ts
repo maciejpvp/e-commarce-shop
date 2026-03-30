@@ -1,7 +1,7 @@
 import { sendEmail } from "../../utils/sendEmail";
 import { generateReceiptHTML } from "./generateReceipt";
-import { getOrderSummary } from "../../services/order";
-import { fetchUserEmail } from "../../services/user";
+import { getOrderSummary } from "order-db";
+import { fetchUserEmail } from "user-db";
 import { CheckoutSummary } from "../calculate-checkout-summary/types";
 
 export const handler = async (event: any) => {

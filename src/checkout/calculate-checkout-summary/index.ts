@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { withCors } from "../../utils/cors";
-import { getCart } from "../../services/cart";
-import { getProductCategories, getProductItem } from "../../services/product";
+import { getCart } from "cart-db";
+import { getProductCategories, getProductItem } from "product-db";
 import { calculateSummary } from "./calculateSummary";
 import {
     ApiGatewayBody,

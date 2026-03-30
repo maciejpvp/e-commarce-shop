@@ -1,5 +1,5 @@
 import { EventBridgeEvent } from "aws-lambda";
-import { getOrderToken } from "../../services/order";
+import { getOrderToken } from "order-db";
 
 import {
     SFNClient,

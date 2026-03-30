@@ -1,5 +1,5 @@
-import { getCartItems } from "../../services/cart";
-import { getProductItem, getProductCategories } from "../../services/product";
+import { getCartItems } from "cart-db";
+import { getProductItem, getProductCategories } from "product-db";
 import { UserAddress, UserCart, Product } from "../../dynamoDbTypes";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

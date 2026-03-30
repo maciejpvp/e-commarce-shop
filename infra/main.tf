@@ -21,6 +21,54 @@ import {
   id = "aws.partner/stripe.com/ed_test_61UG0BdejRE6EOpYr16UDTGI8oNJFHJ3ItuBm1HWaJpI"
 }
 
+// Lambda Layers
+
+module "product_db_layer" {
+  source     = "./modules/ts_layer"
+  layer_name = "product-db-services"
+
+  entrypoint = "${path.module}/../src/services/product.ts"
+
+  import_name = "product-db"
+}
+
+module "cart_db_layer" {
+  source     = "./modules/ts_layer"
+  layer_name = "cart-db-services"
+
+  entrypoint = "${path.module}/../src/services/cart.ts"
+
+  import_name = "cart-db"
+}
+
+module "order_db_layer" {
+  source     = "./modules/ts_layer"
+  layer_name = "order-db-services"
+
+  entrypoint = "${path.module}/../src/services/order.ts"
+
+  import_name = "order-db"
+}
+
+module "coupon_db_layer" {
+  source     = "./modules/ts_layer"
+  layer_name = "coupon-db-services"
+
+  entrypoint = "${path.module}/../src/services/coupon.ts"
+
+  import_name = "coupon-db"
+}
+
+module "user_db_layer" {
+  source     = "./modules/ts_layer"
+  layer_name = "user-db-services"
+
+  entrypoint = "${path.module}/../src/services/user.ts"
+
+  import_name = "user-db"
+}
+
+
 // --- LAMBDAS ---
 
 module "lambdas" {
@@ -37,6 +85,13 @@ module "lambdas" {
   cognito_user_pool_client_id = module.cognito.cognito_user_pool_client_id
   cognito_user_pool_endpoint  = module.cognito.cognito_user_pool_endpoint
   security_mapping            = module.api_gateway.security_mapping # Assuming api_gateway still exports this or needs it
+  layers = {
+    product_db = module.product_db_layer.layer_arn,
+    cart_db    = module.cart_db_layer.layer_arn,
+    order_db   = module.order_db_layer.layer_arn,
+    coupon_db  = module.coupon_db_layer.layer_arn,
+    user_db    = module.user_db_layer.layer_arn,
+  }
 }
 
 // --- CHECKOUT ---

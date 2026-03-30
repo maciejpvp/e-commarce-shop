@@ -2,7 +2,7 @@ import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { v4 as uuidv4 } from 'uuid';
 import { validateProductSchema } from './schema';
 import { generatePresignedPostsForMedia } from './media';
-import { uploadProductMetadata, uploadProductCategory } from '../../services/product';
+import { uploadProductMetadata, uploadProductCategory } from "product-db";
 import { ProductCategory, ProductMetadata } from '../../types';
 import { withCors } from '../../utils/cors';
 
