@@ -172,3 +172,41 @@ module "create_coupon_lambda" {
   }
 }
 
+module "manage_product_categories_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-manage-product-categories"
+  environment   = var.Environment
+  entry_point   = "src/product/manage_product_categories/index.ts"
+  handler       = "index.handler"
+  timeout       = 10
+
+  layers = [var.layers.product_db]
+
+  environment_variables = {
+    TABLE_NAME = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+    }
+  ]
+
+  allowed_triggers = {
+    APIGateway = {
+      principal  = "apigateway.amazonaws.com"
+      source_arn = "${var.api_gateway_execution_arn}/*/*"
+    }
+  }
+}
+
+output "manage_product_categories_lambda_invoke_arn" {
+  value = module.manage_product_categories_lambda.lambda_invoke_arn
+}
+

@@ -151,8 +151,14 @@ module "api_gateway" {
           lambda      = module.lambdas.get_product_lambda_invoke_arn
           permissions = []
           no_auth     = true
+        },
+        categories = {
+          POST = {
+            lambda      = module.lambdas.manage_product_categories_lambda_invoke_arn
+            permissions = ["admin"]
+          },
         }
-      }
+      },
     },
     cart = {
       POST = {

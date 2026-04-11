@@ -1,4 +1,4 @@
-import { QueryCommand, PutCommand, UpdateCommand, GetCommand, DeleteCommandInput, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, PutCommand, UpdateCommand, GetCommand, DeleteCommandInput, DeleteCommand, PutCommandInput } from "@aws-sdk/lib-dynamodb";
 import { decodeToken, encodeToken, executeQuery } from "../utils/db";
 import { docClient } from "../utils/docClient";
 import { ProductMetadata, ProductCategory } from "../types";
@@ -44,8 +44,12 @@ export const getProductsByCategory = async ({
  * @param productIds - Array of product IDs
  * @returns Array of product metadata
  */
-export const getProductItem = async (productIds: string[]): Promise<Product[]> => {
-    const products: Product[] = [];
+export const getProductItem = async (
+    productIds: string[], 
+    attributes?: (keyof Product)[]
+): Promise<Partial<Product>[]> => {
+    const products: Partial<Product>[] = [];
+
     for (const productId of productIds) {
         const command = new GetCommand({
             TableName: tableName,
@@ -53,10 +57,17 @@ export const getProductItem = async (productIds: string[]): Promise<Product[]> =
                 PK: `PRODUCT#${productId}`,
                 SK: "METADATA",
             },
+            // Only fetch specific attributes if provided
+            ProjectionExpression: attributes?.join(", "),
         });
+
         const response = await docClient.send(command);
-        products.push(response.Item as Product);
+        
+        if (response.Item) {
+            products.push(response.Item as Partial<Product>);
+        }
     }
+
     return products;
 };
 
@@ -165,3 +176,33 @@ export const removeCategoryFromProduct = async (props: {productId: string, categ
     const command = new DeleteCommand(commandInput);
     await docClient.send(command);
 };
+
+export const addCategoryToProduct = async (props: {productId: string, category: string, price?: number}) => {
+    const { productId, category, price} = props;
+
+    let productPrice = price;
+    if (!price) {
+        const product = (await getProductItem([productId], ["price"])).at(0);
+
+        if(!product) throw new Error("Product not found");
+
+        productPrice = product.price;
+    }
+
+    if (!productPrice) throw new Error("Product price not found");
+
+    const productCategory: ProductCategory = {
+        PK: `PRODUCT#${productId}`,
+        SK: `CATEGORY#${category}`,
+        gsi1pk: `CATEGORY#${category}`,
+        gsi1sk: `PRICE#${productPrice}#${productId}`,
+    };
+
+    const commandInput: PutCommandInput = {
+        TableName: tableName,
+        Item: productCategory,
+    };
+
+    const command = new PutCommand(commandInput);
+    await docClient.send(command);
+}
