@@ -190,6 +190,7 @@ module "manage_product_categories_lambda" {
   extra_policy_statements = [
     {
       Action = [
+        "dynamodb:GetItem",
         "dynamodb:PutItem",
         "dynamodb:DeleteItem"
       ]
