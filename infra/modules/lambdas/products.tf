@@ -211,3 +211,39 @@ output "manage_product_categories_lambda_invoke_arn" {
   value = module.manage_product_categories_lambda.lambda_invoke_arn
 }
 
+module "manage_products_group_lambda" {
+  source = "../lambda_base"
+
+  function_name = "e-commarce-shop-manage-products-group"
+  environment   = var.Environment
+  entry_point   = "src/product/manage_products_group/index.ts"
+  handler       = "index.handler"
+  timeout       = 10
+
+  layers = [var.layers.product_db]
+
+  environment_variables = {
+    TABLE_NAME = var.table_name
+  }
+
+  extra_policy_statements = [
+    {
+      Action = [
+        "dynamodb:UpdateItem"
+      ]
+      Effect   = "Allow"
+      Resource = [var.table_arn]
+    }
+  ]
+
+  allowed_triggers = {
+    APIGateway = {
+      principal  = "apigateway.amazonaws.com"
+      source_arn = "${var.api_gateway_execution_arn}/*/*"
+    }
+  }
+}
+
+output "manage_products_group_lambda_invoke_arn" {
+  value = module.manage_products_group_lambda.lambda_invoke_arn
+}

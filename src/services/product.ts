@@ -1,10 +1,11 @@
-import { QueryCommand, PutCommand, UpdateCommand, GetCommand, DeleteCommandInput, DeleteCommand, PutCommandInput } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, PutCommand, UpdateCommand, GetCommand, DeleteCommandInput, DeleteCommand, PutCommandInput, TransactWriteCommandInput, TransactWriteCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 import { decodeToken, encodeToken, executeQuery } from "../utils/db";
 import { docClient } from "../utils/docClient";
 import { ProductMetadata, ProductCategory } from "../types";
 import { Product } from "../dynamoDbTypes";
 import { ResponseProduct } from "../product/upload_product/types";
 import { unslugify } from "../utils/slugify";
+import { chunkArray } from "src/utils/chunkArray";
 
 const tableName = process.env.TABLE_NAME!;
 const INDEX = "GSI1";
@@ -12,31 +13,31 @@ const INDEX = "GSI1";
 // ─── Read ─────────────────────────────────────────────────────────────────────
 
 export const getProductsByCategory = async ({
-  category,
-  limit = 10,
-  nextToken
+    category,
+    limit = 10,
+    nextToken
 }: {
-  category: string;
-  limit?: number;
-  nextToken?: string;
+    category: string;
+    limit?: number;
+    nextToken?: string;
 }) => {
-  const command = new QueryCommand({
-    TableName: tableName,
-    IndexName: INDEX,
-    KeyConditionExpression: "gsi1pk = :pk",
-    ExpressionAttributeValues: { 
-      ":pk": `CATEGORY#${category}` 
-    },
-    Limit: Math.max(1, Number(limit)),
-    ExclusiveStartKey: decodeToken(nextToken),
-  });
+    const command = new QueryCommand({
+        TableName: tableName,
+        IndexName: INDEX,
+        KeyConditionExpression: "gsi1pk = :pk",
+        ExpressionAttributeValues: {
+            ":pk": `CATEGORY#${category}`
+        },
+        Limit: Math.max(1, Number(limit)),
+        ExclusiveStartKey: decodeToken(nextToken),
+    });
 
-  const { Items = [], LastEvaluatedKey } = await docClient.send(command);
+    const { Items = [], LastEvaluatedKey } = await docClient.send(command);
 
-  return {
-    products: Items,
-    nextToken: encodeToken(LastEvaluatedKey),
-  };
+    return {
+        products: Items,
+        nextToken: encodeToken(LastEvaluatedKey),
+    };
 };
 
 /**
@@ -45,7 +46,7 @@ export const getProductsByCategory = async ({
  * @returns Array of product metadata
  */
 export const getProductItem = async (
-    productIds: string[], 
+    productIds: string[],
     attributes?: (keyof Product)[]
 ): Promise<Partial<Product>[]> => {
     const products: Partial<Product>[] = [];
@@ -62,7 +63,7 @@ export const getProductItem = async (
         });
 
         const response = await docClient.send(command);
-        
+
         if (response.Item) {
             products.push(response.Item as Partial<Product>);
         }
@@ -156,14 +157,14 @@ export const transformProduct = (product: Product, categories: string[]): Respon
             slug: category,
         })),
         tech_spec: product.tech_spec ? JSON.parse(product.tech_spec) : undefined,
-        attributes: product.attributes ? JSON.parse(product.attributes): undefined,
+        attributes: product.attributes ? JSON.parse(product.attributes) : undefined,
         media: Array.isArray(product.media) ? product.media : JSON.parse(product.media as unknown as string),
         version: product.version,
     };
 };
 
-export const removeCategoryFromProduct = async (props: {productId: string, category: string}) => {
-    const { productId, category} = props;
+export const removeCategoryFromProduct = async (props: { productId: string, category: string }) => {
+    const { productId, category } = props;
 
     const commandInput: DeleteCommandInput = {
         TableName: tableName,
@@ -177,14 +178,14 @@ export const removeCategoryFromProduct = async (props: {productId: string, categ
     await docClient.send(command);
 };
 
-export const addCategoryToProduct = async (props: {productId: string, category: string, price?: number}) => {
-    const { productId, category, price} = props;
+export const addCategoryToProduct = async (props: { productId: string, category: string, price?: number }) => {
+    const { productId, category, price } = props;
 
     let productPrice = price;
     if (!price) {
         const product = (await getProductItem([productId], ["price"])).at(0);
 
-        if(!product) throw new Error("Product not found");
+        if (!product) throw new Error("Product not found");
 
         productPrice = product.price;
     }
@@ -205,4 +206,108 @@ export const addCategoryToProduct = async (props: {productId: string, category: 
 
     const command = new PutCommand(commandInput);
     await docClient.send(command);
+}
+
+// Group
+type AddGroupToProductsProps = {
+    productIds: string[];
+    group: string;
+}
+
+/**
+ * Associates multiple products with a specific group.
+ * @param {Object} props - The configuration object.
+ * @param {string[]} props.productIds - Array of unique product IDs to update.
+ * @param {string} props.group - The group identifier to assign to the products.
+ * @returns {Promise<boolean>} isSuccess.
+ */
+export const addGroupToProducts = async (props: AddGroupToProductsProps): Promise<boolean> => {
+    try {
+        const { productIds, group } = props;
+
+        if (productIds.length > 50) throw new Error("Too many products at once, max 50 allowed");
+
+        const tasks = productIds.map((productId) => {
+            const command = new UpdateCommand({
+                TableName: tableName,
+                Key: {
+                    PK: `PRODUCT#${productId}`,
+                    SK: "METADATA",
+                },
+                UpdateExpression: "SET #gsi1pk = :gsi1pk, #gsi1sk = :gsi1sk",
+                ExpressionAttributeNames: {
+                    "#gsi1pk": "gsi1pk",
+                    "#gsi1sk": "gsi1sk",
+                },
+                ExpressionAttributeValues: {
+                    ":gsi1pk": `GROUP#${group}`,
+                    ":gsi1sk": `PRODUCT#${productId}`,
+                },
+            });
+            return docClient.send(command);
+        });
+
+        await Promise.all(tasks);
+        return true;
+    } catch (error) {
+        console.error(`!!!ERROR in addGroupToProducts: ${error}`);
+        return false;
+    }
+};
+
+/**
+ * Removes a group from products.
+ * @param {string[]} productIds - Array of unique product IDs to update.
+ * @returns {Promise<boolean>} isSuccess.
+ */
+export const removeGroupFromProducts = async (productIds: string[]): Promise<boolean> => {
+    try {
+        if (productIds.length > 50) throw new Error("Too many products at once, max 50 allowed");
+
+        const tasks = productIds.map((productId) => {
+            const command = new UpdateCommand({
+                TableName: tableName,
+                Key: {
+                    PK: `PRODUCT#${productId}`,
+                    SK: "METADATA",
+                },
+                UpdateExpression: "REMOVE #gsi1pk, #gsi1sk",
+                ExpressionAttributeNames: {
+                    "#gsi1pk": "gsi1pk",
+                    "#gsi1sk": "gsi1sk",
+                },
+            });
+            return docClient.send(command);
+        });
+
+        await Promise.all(tasks);
+        return true;
+    } catch (error) {
+        console.error(`!!!ERROR in removeGroupFromProducts: ${error}`);
+        return false;
+    }
+};
+
+/**
+ * Retrieves products by group.
+ * Used for getting all variants of an product.
+ * @param {string} group - The group identifier.
+ * @returns {Promise<Product[]>} Array of products.
+ */
+export const getProductsByGroup = async (group: string) => {
+    const commandInput: QueryCommandInput = {
+        TableName: tableName,
+        IndexName: "gsi1",
+        KeyConditionExpression: "#gsi1pk = :gsi1pk",
+        ExpressionAttributeNames: {
+            "#gsi1pk": "gsi1pk",
+        },
+        ExpressionAttributeValues: {
+            ":gsi1pk": `GROUP#${group}`,
+        },
+    };
+
+    const command = new QueryCommand(commandInput);
+    const response = await docClient.send(command);
+    return response.Items as Product[];
 }
