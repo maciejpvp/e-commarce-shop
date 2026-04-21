@@ -40,4 +40,5 @@ export interface ResponseProduct {
         weight?: string;
     };
     version: number;
+    variants?: ResponseProduct[];
 }

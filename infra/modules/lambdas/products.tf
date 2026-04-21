@@ -127,7 +127,7 @@ module "get_product_lambda" {
         "dynamodb:GetItem"
       ]
       Effect   = "Allow"
-      Resource = [var.table_arn]
+      Resource = [var.table_arn, "${var.table_arn}/index/*"]
     }
   ]
 

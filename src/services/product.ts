@@ -145,21 +145,26 @@ export const updateProduct = async ({
 };
 
 
-export const transformProduct = (product: Product, categories: string[]): ResponseProduct => {
+export const transformProduct = (product: Partial<Product>, categories: string[], variants?: Product[]): ResponseProduct => {
     return {
-        id: product.PK.split("#")[1],
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        stock: product.stock,
+        id: product.PK?.split("#")[1] ?? "",
+        name: product.name ?? "",
+        description: product.description ?? "",
+        price: product.price ?? -1,
+        stock: product.stock ?? -1,
         categories: categories.map((category) => ({
             name: unslugify(category),
             slug: category,
         })),
         tech_spec: product.tech_spec ? JSON.parse(product.tech_spec) : undefined,
         attributes: product.attributes ? JSON.parse(product.attributes) : undefined,
-        media: Array.isArray(product.media) ? product.media : JSON.parse(product.media as unknown as string),
-        version: product.version,
+        media: product.media
+            ? Array.isArray(product.media)
+                ? product.media
+                : JSON.parse(product.media as unknown as string)
+            : [],
+        version: product.version ?? -1,
+        variants: variants?.map((variant) => transformProduct(variant, [])),
     };
 };
 
@@ -297,10 +302,14 @@ export const removeGroupFromProducts = async (productIds: string[]): Promise<boo
 export const getProductsByGroup = async (group: string) => {
     const commandInput: QueryCommandInput = {
         TableName: tableName,
-        IndexName: "gsi1",
+        IndexName: INDEX,
         KeyConditionExpression: "#gsi1pk = :gsi1pk",
+        ProjectionExpression: "#id, #name, #media",
         ExpressionAttributeNames: {
             "#gsi1pk": "gsi1pk",
+            "#id": "PK",
+            "#name": "name",
+            "#media": "media",
         },
         ExpressionAttributeValues: {
             ":gsi1pk": `GROUP#${group}`,

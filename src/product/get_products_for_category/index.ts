@@ -1,6 +1,6 @@
 import { validateGetProductsForCategory } from "./schema";
 import { getProductCategories, getProductItem, getProductsByCategory, transformProduct } from "product-db";
-import { Product } from "../../dynamoDbTypes";
+
 import { withCors } from "../../utils/cors";
 
 export const handler = async (event: any) => {
@@ -53,11 +53,11 @@ async function getProducts ({ category, limit, nextToken, populateCategories }: 
             const categories = await getProductCategories(product.PK!.split("#")[1]);
             console.log(`categories`, categories);
 
-            return transformProduct(product as Product, categories);
+            return transformProduct(product, categories);
         }
         
         // It wont be used in frontend, so we can optimalize it and put dummy category
-        return transformProduct(product as Product, [category]);
+        return transformProduct(product, [category]);
     }));
 
     return { products: productsWithMappedCategories, nextToken: newNextToken };

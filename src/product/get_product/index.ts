@@ -1,4 +1,5 @@
-import { getProductCategories, getProductItem, transformProduct } from "product-db";
+import { getProductCategories, getProductItem, getProductsByGroup, transformProduct } from "product-db";
+import { Product } from "../../dynamoDbTypes";
 import { withCors } from "../../utils/cors";
 import * as Joi from "joi";
 
@@ -24,10 +25,10 @@ export const handler = async (event: any) => {
             throw new Error("Product not found");
         }
         const categories = await getProductCategories(productId);
+        const group = product.gsi1pk?.split("#")[1] ?? undefined;
+        const variants = group ? await getProductsByGroup(group) : [];
 
-        const productWithMappedCategories = transformProduct(product, categories);
-
-        console.log(productWithMappedCategories);
+        const productWithMappedCategories = transformProduct(product, categories, variants as Product[]);
 
         return withCors({
             statusCode: 200,

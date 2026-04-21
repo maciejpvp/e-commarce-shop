@@ -105,6 +105,8 @@ export interface Product extends BaseItem {
     tech_spec?: string;
     attributes?: string;
     version: number;
+    gsi1sk: string; // GROUP#<group>
+    gsi2sk: string; // PRODUCT#<productId>
 }
 
 export interface ProductCategory extends BaseItem {
