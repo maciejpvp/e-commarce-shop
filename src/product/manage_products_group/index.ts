@@ -2,6 +2,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import Joi from "joi";
 import { addGroupToProducts, removeGroupFromProducts } from "product-db";
 import { withCors } from "src/utils/cors";
+import { slugify } from "src/utils/slugify";
 
 type BodyType = {
     productIds: string[];
@@ -33,6 +34,7 @@ export const handler = async (event: APIGatewayEvent) => {
                 statusCode: 400,
                 body: JSON.stringify({
                     message: "Invalid JSON payload format. Please ensure valid JSON.",
+                    details: error.message,
                 })
             });
         }
@@ -57,9 +59,12 @@ export const handler = async (event: APIGatewayEvent) => {
 }
 
 function extractRequestedData(event: APIGatewayEvent, method: string) {
-    return validate(JSON.parse(event.body || "{}"), method);
-}
+    const body = event.isBase64Encoded
+        ? Buffer.from(event.body || "", "base64").toString("utf-8")
+        : event.body || "{}";
 
+    return validate(JSON.parse(body), method);
+}
 const schema = Joi.object<BodyType>({
     productIds: Joi.array().items(Joi.string().uuid().required()).required(),
     group: Joi.string().when("$method", {
@@ -77,5 +82,10 @@ const validate = (data: any, method: string): BodyType => {
     if (error) {
         throw error;
     }
+
+    if (value.group) {
+        value.group = slugify(value.group);
+    }
+
     return value;
 }

@@ -39,6 +39,7 @@ export interface ResponseProduct {
         profile?: string;
         weight?: string;
     };
+    group?: string;
     version: number;
     variants?: ResponseProduct[];
 }

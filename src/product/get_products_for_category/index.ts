@@ -35,7 +35,7 @@ type GetProductsProps = {
     populateCategories?: boolean,
 }
 
-async function getProducts ({ category, limit, nextToken, populateCategories }: GetProductsProps) {
+async function getProducts({ category, limit, nextToken, populateCategories }: GetProductsProps) {
     // Get PK and SK of each product in category
     const { products: productsList, nextToken: newNextToken } = await getProductsByCategory({ category, limit, nextToken });
 
@@ -55,10 +55,13 @@ async function getProducts ({ category, limit, nextToken, populateCategories }: 
 
             return transformProduct(product, categories);
         }
-        
+
         // It wont be used in frontend, so we can optimalize it and put dummy category
         return transformProduct(product, [category]);
     }));
+
+    console.log({ productsWithMappedCategories, products });
+
 
     return { products: productsWithMappedCategories, nextToken: newNextToken };
 }

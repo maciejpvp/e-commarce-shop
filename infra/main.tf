@@ -136,15 +136,15 @@ module "api_gateway" {
             permissions = ["admin"]
           }
         }
-        group = {
-          POST = {
-            lambda      = module.lambdas.manage_products_group_lambda_invoke_arn
-            permissions = ["admin"]
-          }
-          DELETE = {
-            lambda      = module.lambdas.manage_products_group_lambda_invoke_arn
-            permissions = ["admin"]
-          }
+      },
+      group = {
+        POST = {
+          lambda      = module.lambdas.manage_products_group_lambda_invoke_arn
+          permissions = ["admin"]
+        }
+        DELETE = {
+          lambda      = module.lambdas.manage_products_group_lambda_invoke_arn
+          permissions = ["admin"]
         }
       },
       category = {

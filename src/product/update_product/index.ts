@@ -15,14 +15,14 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
         }
 
         const body = event.body ? JSON.parse(event.body) : {};
-        const validatedAttributes = validateUpdateProduct(body);
+        const { data, version } = validateUpdateProduct(body);
 
         const {
             updateExpression,
             expressionAttributeNames,
             expressionAttributeValues,
             conditionExpression,
-        } = buildDynamicUpdateExpression(validatedAttributes, validatedAttributes.version);
+        } = buildDynamicUpdateExpression(data, version);
 
         console.log(`Updating product ${productId} with expression: ${updateExpression}`);
 

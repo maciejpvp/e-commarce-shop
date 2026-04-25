@@ -2,33 +2,27 @@ import Joi from 'joi';
 
 type SchemaType = {
     version: number,
-    name?: string,
-    price?: number,
-    description?: string,
-    stock?: number,
-    media?: {
-        uploadUrl: string,
-        fields: string,
-        key: string,
-        type: string,
-        isMain: boolean,
-    }[],
+    data: {
+        name?: string;
+        description?: string;
+        price?: number;
+        stock?: number;
+        tech_spec?: string;
+        attributes?: string;
+    }
 }
 
 export const updateProductSchema = Joi.object<SchemaType>({
     version: Joi.number().required(),
-    name: Joi.string().min(3).max(100),
-    price: Joi.number().min(0),
-    description: Joi.string().min(10).max(1000),
-    stock: Joi.number().min(0),
-    media: Joi.array().items(Joi.object({
-        uploadUrl: Joi.string().uri().required(),
-        fields: Joi.string().required(),
-        key: Joi.string().required(),
-        type: Joi.string().valid("image/", "video/").required(),
-        isMain: Joi.boolean().required(),
-    })),
-}).min(1); // At least one attribute must be provided
+    data: Joi.object({
+        name: Joi.string().min(3).max(100),
+        price: Joi.number().min(0),
+        description: Joi.string().min(10).max(1000),
+        stock: Joi.number().min(0),
+        tech_spec: Joi.string(),
+        attributes: Joi.string(),
+    }).min(1)
+});
 
 export function validateUpdateProduct(body: any): SchemaType {
     const { error, value } = updateProductSchema.validate(body, {

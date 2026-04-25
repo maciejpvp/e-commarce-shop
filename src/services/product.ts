@@ -163,6 +163,7 @@ export const transformProduct = (product: Partial<Product>, categories: string[]
                 ? product.media
                 : JSON.parse(product.media as unknown as string)
             : [],
+        group: product.gsi1pk?.split("#")[1],
         version: product.version ?? -1,
         variants: variants?.map((variant) => transformProduct(variant, [])),
     };
