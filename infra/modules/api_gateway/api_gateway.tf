@@ -57,7 +57,7 @@ resource "aws_api_gateway_deployment" "this" {
 resource "aws_api_gateway_stage" "this" {
   deployment_id = aws_api_gateway_deployment.this.id
   rest_api_id   = aws_api_gateway_rest_api.this.id
-  stage_name    = "prod"
+  stage_name    = var.Environment
 
   depends_on = [aws_api_gateway_account.main]
 
@@ -102,6 +102,7 @@ resource "aws_api_gateway_usage_plan" "this" {
     burst_limit = 10
     rate_limit  = 5
   }
+  depends_on = [aws_api_gateway_stage.this]
 }
 
 resource "aws_api_gateway_usage_plan_key" "this" {

@@ -17,6 +17,14 @@ terraform {
       version = "~> 2.3"
     }
   }
+
+  backend "s3" {
+    bucket = "e-commerce-terraform-state-maciejpvp"
+    # key          = "terraform.tfstate" # Overridden by CI/CD pipeline
+    region       = "eu-central-1"
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "aws" {
@@ -25,5 +33,3 @@ provider "aws" {
 
 provider "random" {
 }
-
-

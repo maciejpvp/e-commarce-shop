@@ -11,14 +11,14 @@ module "cognito" {
 // Stripe Event Bus
 module "stripe_integration" {
   source               = "./modules/stripe_events"
-  stripe_bus_name      = "aws.partner/stripe.com/ed_test_61UG0BdejRE6EOpYr16UDTGI8oNJFHJ3ItuBm1HWaJpI"
+  stripe_bus_name      = var.stripe_bus_name
   lambda_function_name = module.lambdas.order_payment_reconciler_lambda_function_name
   lambda_arn           = module.lambdas.order_payment_reconciler_lambda_arn
 }
 
 import {
   to = module.stripe_integration.aws_cloudwatch_event_bus.stripe_bus
-  id = "aws.partner/stripe.com/ed_test_61UG0BdejRE6EOpYr16UDTGI8oNJFHJ3ItuBm1HWaJpI"
+  id = var.stripe_bus_name
 }
 
 // Lambda Layers
@@ -266,4 +266,21 @@ module "cloudfront" {
   api_gateway_domain       = module.api_gateway.api_endpoint_domain
   api_gateway_stage        = module.api_gateway.stage_name
   api_key                  = module.api_gateway.api_key_value
+}
+
+// --- CI/CD ---
+
+module "infra_pipeline" {
+  source = "cloudposse/cicd/aws"
+  # version = "x.x.x"
+  namespace = "eg"
+  stage     = var.Environment
+  name      = "infra"
+
+  github_oauth_token = var.github_token
+  repo_owner         = "maciejpvp"
+  repo_name          = "e-commarce-shop"
+  branch             = "main"
+
+  buildspec = "buildspec.yml"
 }
