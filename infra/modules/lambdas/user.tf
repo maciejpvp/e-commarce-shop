@@ -176,4 +176,4 @@ module "get_order_list_lambda" {
 
 output "get_order_list_lambda_invoke_arn" {
   value = module.get_order_list_lambda.lambda_invoke_arn
-}     
+}
