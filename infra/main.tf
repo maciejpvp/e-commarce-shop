@@ -282,5 +282,34 @@ module "infra_pipeline" {
   repo_name          = "e-commarce-shop"
   branch             = "main"
 
-  buildspec = "infra/buildspec.yml"
+  buildspec   = "infra/buildspec.yml"
+  build_image = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
+}
+
+resource "aws_iam_role_policy" "s3_backend_access" {
+  name = "eg-${var.Environment}-infra-s3-backend"
+  role = module.infra_pipeline.codebuild_role_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::e-commerce-terraform-state-maciejpvp"
+      },
+      {
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ]
+        Effect   = "Allow"
+        Resource = "arn:aws:s3:::e-commerce-terraform-state-maciejpvp/*"
+      }
+    ]
+  })
 }
