@@ -3,7 +3,6 @@ version: 0.2
 env:
   variables:
     TF_VERSION: "1.9.5"
-    # Default environment if not set by the pipeline
     ENVIRONMENT: "staging"
 
 phases:
@@ -12,11 +11,13 @@ phases:
       nodejs: 18
     commands:
       - echo "Installing Terraform..."
-      - curl -s -qL https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip -o terraform.zip
+      - curl -s -qL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_arm64.zip" -o terraform.zip
       - unzip terraform.zip -d /usr/local/bin
+      - chmod +x /usr/local/bin/terraform
       - terraform version
+      
       - echo "Installing tfsec..."
-      - curl -s -qL https://github.com/aquasecurity/tfsec/releases/download/v1.28.1/tfsec-linux-amd64 -o tfsec
+      - curl -s -qL "https://github.com/aquasecurity/tfsec/releases/download/v1.28.1/tfsec-linux-arm64" -o tfsec
       - chmod +x tfsec
       - mv tfsec /usr/local/bin/
 
@@ -33,17 +34,16 @@ phases:
     commands:
       - echo "Running Terraform Plan for ${ENVIRONMENT}..."
       - terraform plan -out=tfplan -input=false -var="Environment=${ENVIRONMENT}"
-      
       - echo "Applying Infrastructure Changes..."
       - terraform apply -input=false -auto-approve tfplan
 
   post_build:
     commands:
       - echo "Infrastructure deployment completed on $(date)"
-      - terraform output -json > tf_outputs.json
+      - terraform output -json > ../tf_outputs.json
 
 artifacts:
   files:
     - tf_outputs.json
-    - tfplan
+    - infra/tfplan
   name: infra-build-artifacts
