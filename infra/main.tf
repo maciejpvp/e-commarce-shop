@@ -282,5 +282,5 @@ module "infra_pipeline" {
   repo_name          = "e-commarce-shop"
   branch             = "main"
 
-  buildspec = "buildspec.yml"
+  buildspec = "infra/buildspec.yml"
 }

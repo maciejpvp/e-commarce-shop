@@ -23,6 +23,7 @@ phases:
   pre_build:
     commands:
       - echo "Running Infrastructure Checks..."
+      - cd infra
       - terraform fmt -check -recursive
       - terraform init -input=false -backend-config="key=${ENVIRONMENT}/terraform.tfstate"
       - terraform validate
