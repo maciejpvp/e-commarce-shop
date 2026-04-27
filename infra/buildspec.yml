@@ -7,8 +7,6 @@ env:
 
 phases:
   install:
-    runtime-versions:
-      nodejs: 18
     commands:
       - echo "Installing Terraform..."
       - curl -s -qL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_arm64.zip" -o terraform.zip
@@ -16,10 +14,8 @@ phases:
       - chmod +x /usr/local/bin/terraform
       - terraform version
       
-      - echo "Installing tfsec..."
-      - curl -s -qL "https://github.com/aquasecurity/tfsec/releases/download/v1.28.1/tfsec-linux-arm64" -o tfsec
-      - chmod +x tfsec
-      - mv tfsec /usr/local/bin/
+      - echo "Installing Trivy..."
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
   pre_build:
     commands:
@@ -28,7 +24,8 @@ phases:
       - terraform fmt -check -recursive
       - terraform init -input=false -backend-config="key=${ENVIRONMENT}/terraform.tfstate"
       - terraform validate
-      - tfsec .
+      - echo "Running security scan..."
+      - trivy config .
 
   build:
     commands:
