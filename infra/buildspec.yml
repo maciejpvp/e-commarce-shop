@@ -25,7 +25,7 @@ phases:
       - terraform init -input=false -backend-config="key=${ENVIRONMENT}/terraform.tfstate"
       - terraform validate
       - echo "Running security scan..."
-      - trivy config .
+      - trivy config . --skip-dirs .terraform
 
   build:
     commands:
