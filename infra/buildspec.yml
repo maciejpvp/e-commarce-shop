@@ -11,7 +11,8 @@ phases:
   install:
     commands:
       - echo "Installing Terraform..."
-      - curl -s -qL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" -o terraform.zip
+      - npm install
+      - curl -sL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" -o terraform.zip
       - unzip terraform.zip -d /usr/local/bin
       - chmod +x /usr/local/bin/terraform
       - terraform version
@@ -32,13 +33,15 @@ phases:
   build:
     commands:
       - echo "Running Terraform Plan for ${ENVIRONMENT}..."
+      - cd infra  # Directory state does not persist across phases
       - terraform plan -out=tfplan -input=false -var="Environment=${ENVIRONMENT}" -var="github_token=${GITHUB_TOKEN}"
       - echo "Applying Infrastructure Changes..."
-      - terraform apply -input=false -auto-approve tfplan
+      - terraform apply -input=false tfplan  # Removed -auto-approve (not needed for saved plans)
 
   post_build:
     commands:
       - echo "Infrastructure deployment completed on $(date)"
+      - cd infra  # Directory state does not persist across phases
       - terraform output -json > ../tf_outputs.json
 
 artifacts:

@@ -303,7 +303,13 @@ resource "aws_iam_role_policy" "s3_backend_access" {
           "s3:*",
           "iam:*",
           "apigateway:*",
-          "lambda:*"
+          "lambda:*",
+          "cognito-idp:*",
+          "states:*",
+          "logs:*",
+          "codebuild:*",
+          "ssm:GetParameter",
+          "sts:AssumeRole"
         ],
         "Resource" : "*"
       }
