@@ -11,7 +11,7 @@ phases:
   install:
     commands:
       - echo "Installing Terraform..."
-      - curl -s -qL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_arm64.zip" -o terraform.zip
+      - curl -s -qL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" -o terraform.zip
       - unzip terraform.zip -d /usr/local/bin
       - chmod +x /usr/local/bin/terraform
       - terraform version

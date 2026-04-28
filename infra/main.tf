@@ -283,7 +283,8 @@ module "infra_pipeline" {
   branch             = "main"
 
   buildspec   = "infra/buildspec.yml"
-  build_image = "aws/codebuild/amazonlinux2-aarch64-standard:3.0"
+  build_image = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
+  region      = "eu-central-1"
 }
 
 resource "aws_iam_role_policy" "s3_backend_access" {
@@ -294,21 +295,17 @@ resource "aws_iam_role_policy" "s3_backend_access" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = [
-          "s3:ListBucket",
-          "s3:GetBucketLocation"
-        ]
-        Effect   = "Allow"
-        Resource = "arn:aws:s3:::e-commerce-terraform-state-maciejpvp"
-      },
-      {
-        Action = [
-          "s3:PutObject",
-          "s3:GetObject",
-          "s3:DeleteObject"
-        ]
-        Effect   = "Allow"
-        Resource = "arn:aws:s3:::e-commerce-terraform-state-maciejpvp/*"
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:*",
+          "cloudfront:*",
+          "events:*",
+          "s3:*",
+          "iam:*",
+          "apigateway:*",
+          "lambda:*"
+        ],
+        "Resource" : "*"
       }
     ]
   })
