@@ -4,6 +4,8 @@ env:
   variables:
     TF_VERSION: "1.10.0"
     ENVIRONMENT: "staging"
+  parameter-store:
+    GITHUB_TOKEN: "github_token"
 
 phases:
   install:
