@@ -33,15 +33,13 @@ phases:
   build:
     commands:
       - echo "Running Terraform Plan for ${ENVIRONMENT}..."
-      - cd infra  # Directory state does not persist across phases
       - terraform plan -out=tfplan -input=false -var="Environment=${ENVIRONMENT}" -var="github_token=${GITHUB_TOKEN}"
       - echo "Applying Infrastructure Changes..."
-      - terraform apply -input=false tfplan  # Removed -auto-approve (not needed for saved plans)
+      - terraform apply -input=false tfplan
 
   post_build:
     commands:
       - echo "Infrastructure deployment completed on $(date)"
-      - cd infra  # Directory state does not persist across phases
       - terraform output -json > ../tf_outputs.json
 
 artifacts:
