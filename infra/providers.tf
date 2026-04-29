@@ -20,10 +20,7 @@ terraform {
 
   backend "s3" {
     bucket = "e-commerce-terraform-state-maciejpvp"
-    # key          = "terraform.tfstate" # Overridden by CI/CD pipeline
-    region       = "eu-central-1"
-    encrypt      = true
-    use_lockfile = true
+    region = "eu-central-1"
   }
 }
 
