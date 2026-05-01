@@ -174,7 +174,13 @@ module "api_gateway" {
       POST = {
         lambda      = module.lambdas.add_to_cart_lambda_invoke_arn
         permissions = []
-      }
+      },
+      test = {
+        POST = {
+          lambda      = module.lambdas.add_to_cart_lambda_invoke_arn
+          permissions = []
+        }
+      },
       PATCH = {
         lambda      = module.lambdas.update_cart_item_lambda_invoke_arn
         permissions = []

@@ -1,0 +1,41 @@
+version: 0.2
+
+env:
+  variables:
+    TF_VERSION: "1.12.1"
+    NODE_VERSION: "22"
+    ENVIRONMENT: "dev"
+    TF_STATE_KEY: "dev/terraform.tfstate"
+    AWS_DEFAULT_REGION: "eu-central-1"
+
+phases:
+  install:
+    commands:
+      - ls -la
+      - echo "Installing Terraform ${TF_VERSION}..."
+      - curl -fsSL "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip" -o /tmp/terraform.zip
+      - unzip -o /tmp/terraform.zip -d /usr/local/bin/
+      - terraform --version
+
+      # ── Install Node dependencies (needed for esbuild bundling during terraform apply) ──
+      - echo "Installing Node.js dependencies..."
+      - npm ci
+  pre_build:
+    commands:
+      - echo "Initializing Terraform..."
+      - terraform -chdir=infra init -backend-config="key=${TF_STATE_KEY}"
+      
+      - bash scripts/prebuild-lambdas.sh
+      
+      - echo "Running Terraform plan..."
+      - >-
+        terraform -chdir=infra plan
+        -var="Environment=${ENVIRONMENT}"
+        -out=tfplan
+        -input=false
+      
+  build:
+    commands:
+      - echo "Applying Terraform..."
+      - terraform -chdir=infra apply -input=false tfplan
+      
