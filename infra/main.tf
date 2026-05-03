@@ -11,6 +11,7 @@ module "cognito" {
 // Stripe Event Bus
 module "stripe_integration" {
   source               = "./modules/stripe_events"
+  Environment          = var.Environment
   stripe_bus_name      = var.stripe_bus_name
   lambda_function_name = module.lambdas.order_payment_reconciler_lambda_function_name
   lambda_arn           = module.lambdas.order_payment_reconciler_lambda_arn
@@ -21,11 +22,15 @@ import {
   id = var.stripe_bus_name
 }
 
+data "aws_ssm_parameter" "stripe_secret" {
+  name = "/e-commerce-store/${var.Environment}/stripe-secret-key"
+}
+
 // Lambda Layers
 
 module "product_db_layer" {
   source     = "./modules/ts_layer"
-  layer_name = "product-db-services"
+  layer_name = "product-db-services-${var.Environment}"
 
   entrypoint = "${path.module}/../src/services/product.ts"
 
@@ -34,7 +39,7 @@ module "product_db_layer" {
 
 module "cart_db_layer" {
   source     = "./modules/ts_layer"
-  layer_name = "cart-db-services"
+  layer_name = "cart-db-services-${var.Environment}"
 
   entrypoint = "${path.module}/../src/services/cart.ts"
 
@@ -43,7 +48,7 @@ module "cart_db_layer" {
 
 module "order_db_layer" {
   source     = "./modules/ts_layer"
-  layer_name = "order-db-services"
+  layer_name = "order-db-services-${var.Environment}"
 
   entrypoint = "${path.module}/../src/services/order.ts"
 
@@ -52,7 +57,7 @@ module "order_db_layer" {
 
 module "coupon_db_layer" {
   source     = "./modules/ts_layer"
-  layer_name = "coupon-db-services"
+  layer_name = "coupon-db-services-${var.Environment}"
 
   entrypoint = "${path.module}/../src/services/coupon.ts"
 
@@ -61,7 +66,7 @@ module "coupon_db_layer" {
 
 module "user_db_layer" {
   source     = "./modules/ts_layer"
-  layer_name = "user-db-services"
+  layer_name = "user-db-services-${var.Environment}"
 
   entrypoint = "${path.module}/../src/services/user.ts"
 
@@ -85,6 +90,7 @@ module "lambdas" {
   cognito_user_pool_client_id = module.cognito.cognito_user_pool_client_id
   cognito_user_pool_endpoint  = module.cognito.cognito_user_pool_endpoint
   security_mapping            = module.api_gateway.security_mapping # Assuming api_gateway still exports this or needs it
+  stripe_secret_key_arn       = data.aws_ssm_parameter.stripe_secret.arn
   layers = {
     product_db = module.product_db_layer.layer_arn,
     cart_db    = module.cart_db_layer.layer_arn,
@@ -266,10 +272,12 @@ module "s3_product_media" {
 module "cloudfront" {
   source = "./modules/cloudfront"
 
+  Environment              = var.Environment
   media_bucket_id          = module.s3_product_media.bucket_id
   media_bucket_domain_name = module.s3_product_media.domain_name
   media_bucket_arn         = module.s3_product_media.bucket_arn
   api_gateway_domain       = module.api_gateway.api_endpoint_domain
   api_gateway_stage        = module.api_gateway.stage_name
   api_key                  = module.api_gateway.api_key_value
+
 }

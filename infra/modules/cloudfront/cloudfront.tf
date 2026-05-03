@@ -7,7 +7,7 @@ data "aws_cloudfront_origin_request_policy" "all_viewer_except_host" {
 }
 
 resource "aws_cloudfront_origin_access_control" "s3_oac" {
-  name                              = "s3-media-oac"
+  name                              = "s3-media-oac-${var.Environment}"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
@@ -115,10 +115,15 @@ resource "aws_cloudfront_distribution" "main_distro" {
 }
 
 resource "aws_cloudfront_function" "strip_prefix" {
-  name    = "strip-prefix"
+  name    = "strip-prefix-${var.Environment}"
   runtime = "cloudfront-js-2.0"
   comment = "Strips /api and /cdn prefixes from the URI"
   publish = true
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
   code    = <<EOF
 function handler(event) {
     var request = event.request;

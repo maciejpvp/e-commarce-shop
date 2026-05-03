@@ -1,5 +1,5 @@
 resource "aws_cognito_user_pool" "main" {
-  name = "e-commarce-shop-pool"
+  name = "e-commarce-shop-pool-${var.Environment}"
 
   # Enforce email as the primary identifier (prevents duplicates)
   username_attributes      = ["email"]

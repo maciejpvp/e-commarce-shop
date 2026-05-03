@@ -1,3 +1,8 @@
+variable "Environment" {
+  description = "The environment for the infrastructure"
+  type        = string
+}
+
 variable "stripe_bus_name" {
   type = string
 }
@@ -17,7 +22,7 @@ resource "aws_cloudwatch_event_bus" "stripe_bus" {
 
 # The Rule
 resource "aws_cloudwatch_event_rule" "stripe_rule" {
-  name           = "stripe-to-lambda-rule"
+  name           = "stripe-to-lambda-rule-${var.Environment}"
   event_bus_name = aws_cloudwatch_event_bus.stripe_bus.name
   event_pattern = jsonencode({
     "source" : [{ "prefix" : "aws.partner/stripe.com" }]

@@ -60,3 +60,8 @@ variable "layers" {
   type        = map(string)
   default     = {}
 }
+
+variable "stripe_secret_key_arn" {
+  description = "Stripe secret key ARN"
+  type        = string
+}

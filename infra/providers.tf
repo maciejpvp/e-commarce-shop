@@ -19,8 +19,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "e-commerce-terraform-state-maciejpvp"
-    region = "eu-central-1"
+    bucket               = "e-commerce-terraform-state-maciejpvp"
+    key                  = "terraform.tfstate"
+    region               = "eu-central-1"
+    workspace_key_prefix = ""
   }
 }
 

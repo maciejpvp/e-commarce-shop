@@ -1,7 +1,16 @@
 {
   "scripts": {
     "test": "jest",
-    "format:tf": "terraform -chdir=infra fmt -recursive"
+    "format:tf": "terraform -chdir=infra fmt -recursive",
+    "tf:dev:init": "terraform -chdir=infra init && (terraform -chdir=infra workspace select dev || terraform -chdir=infra workspace new dev)",
+    "tf:dev:plan": "terraform -chdir=infra workspace select dev && terraform -chdir=infra plan -var='Environment=dev'",
+    "tf:dev:deploy": "terraform -chdir=infra workspace select dev && terraform -chdir=infra apply -var='Environment=dev' -auto-approve",
+    "tf:staging:init": "terraform -chdir=infra init && (terraform -chdir=infra workspace select staging || terraform -chdir=infra workspace new staging)",
+    "tf:staging:plan": "terraform -chdir=infra workspace select staging && terraform -chdir=infra plan -var='Environment=staging'",
+    "tf:staging:deploy": "terraform -chdir=infra workspace select staging && terraform -chdir=infra apply -var='Environment=staging' -auto-approve",
+    "tf:prod:init": "terraform -chdir=infra init && (terraform -chdir=infra workspace select prod || terraform -chdir=infra workspace new prod)",
+    "tf:prod:plan": "terraform -chdir=infra workspace select prod && terraform -chdir=infra plan -var='Environment=prod'",
+    "tf:prod:deploy": "terraform -chdir=infra workspace select prod && terraform -chdir=infra apply -var='Environment=prod' -auto-approve"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.992.0",

@@ -76,7 +76,7 @@ module "create_checkout_session_lambda" {
         "ssm:GetParameter"
       ]
       Effect   = "Allow"
-      Resource = ["arn:aws:ssm:eu-central-1:445567075183:parameter/e-commerce-store/dev/stripe-secret-key"]
+      Resource = [var.stripe_secret_key_arn]
     },
     {
       Action   = ["kms:Decrypt"]
@@ -187,7 +187,7 @@ module "finalize_order_lambda" {
         "ssm:GetParameter"
       ]
       Effect   = "Allow"
-      Resource = ["arn:aws:ssm:eu-central-1:445567075183:parameter/e-commerce-store/dev/stripe-secret-key"]
+      Resource = [var.stripe_secret_key_arn]
     },
     {
       Action   = ["kms:Decrypt"]

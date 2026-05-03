@@ -1,3 +1,8 @@
+variable "Environment" {
+  description = "The environment for the infrastructure"
+  type        = string
+}
+
 variable "media_bucket_id" {
   description = "The ID of the S3 bucket for product media"
   type        = string

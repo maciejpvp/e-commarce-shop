@@ -8,7 +8,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-validate-cart-dev:$LATEST",
+        "FunctionName": "${lambda_arns.validate_cart}",
         "Payload": "{% $states.input %}"
       },
       "Retry": [
@@ -42,7 +42,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-reserve-stock-dev:$LATEST",
+        "FunctionName": "${lambda_arns.reserve_stock}",
         "Payload": "{% $states.input %}"
       },
       "Retry": [
@@ -76,7 +76,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-calculate-checkout-summary-dev:$LATEST",
+        "FunctionName": "${lambda_arns.calculate_summary}",
         "Payload": "{% $states.input %}"
       },
       "Retry": [
@@ -100,7 +100,7 @@
       "Resource": "arn:aws:states:::lambda:invoke.waitForTaskToken",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-create-checkout-session-dev:$LATEST",
+        "FunctionName": "${lambda_arns.create_session}",
         "Payload": {
           "token": "{% $states.context.Task.Token %}",
           "input": "{% $states.input %}"
@@ -144,7 +144,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-cleanup-dev:$LATEST",
+        "FunctionName": "${lambda_arns.cleanup}",
         "Payload": "{% $states.input %}"
       },
       "Retry": [
@@ -171,7 +171,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-finalize-order-dev:$LATEST",
+        "FunctionName": "${lambda_arns.finalize_order}",
         "Payload": "{% $states.input %}"
       },
       "Retry": [
@@ -205,7 +205,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-send-receipt-dev:$LATEST",
+        "FunctionName": "${lambda_arns.send_receipt}",
         "Payload": "{% $states.input %}"
       },
       "Retry": [
@@ -232,7 +232,7 @@
       "Resource": "arn:aws:states:::lambda:invoke",
       "Output": "{% $states.result.Payload %}",
       "Arguments": {
-        "FunctionName": "arn:aws:lambda:eu-central-1:445567075183:function:e-commarce-shop-unreserve-stock-dev:$LATEST",
+        "FunctionName": "${lambda_arns.unreserve_stock}",
         "Payload": "{% $states.input %}"
       },
       "Retry": [

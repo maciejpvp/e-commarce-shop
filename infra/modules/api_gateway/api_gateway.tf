@@ -27,7 +27,7 @@ locals {
 }
 
 resource "aws_api_gateway_rest_api" "this" {
-  name        = "e-commarce-shop-api"
+  name        = "e-commarce-shop-api-${var.Environment}"
   description = "REST API Gateway for e-commarce-shop"
 
   body = local.rendered_body
@@ -82,11 +82,11 @@ resource "aws_api_gateway_stage" "this" {
 }
 
 resource "aws_api_gateway_api_key" "this" {
-  name = "e-commarce-shop-api-key"
+  name = "e-commarce-shop-api-key-${var.Environment}"
 }
 
 resource "aws_api_gateway_usage_plan" "this" {
-  name = "e-commarce-shop-usage-plan"
+  name = "e-commarce-shop-usage-plan-${var.Environment}"
 
   api_stages {
     api_id = aws_api_gateway_rest_api.this.id
@@ -134,7 +134,7 @@ resource "aws_api_gateway_gateway_response" "cors_5xx" {
 }
 
 resource "aws_cloudwatch_log_group" "api_gw" {
-  name              = "/aws/api-gw/e-commarce-shop-api"
+  name              = "/aws/api-gw/e-commarce-shop-api-${var.Environment}"
   retention_in_days = 7
 
   tags = {
