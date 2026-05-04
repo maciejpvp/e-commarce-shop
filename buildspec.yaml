@@ -4,8 +4,7 @@ env:
   variables:
     TF_VERSION: "1.12.1"
     NODE_VERSION: "22"
-    ENVIRONMENT: "dev"
-    TF_STATE_KEY: "dev/terraform.tfstate"
+    ENVIRONMENT: "staging"
     AWS_DEFAULT_REGION: "eu-central-1"
 
 phases:
@@ -22,20 +21,16 @@ phases:
       - npm ci
   pre_build:
     commands:
-      - echo "Initializing Terraform..."
-      - terraform -chdir=infra init -backend-config="key=${TF_STATE_KEY}"
+      - echo "Initializing Terraform for environment ${ENVIRONMENT}..."
+      - npm run tf:${ENVIRONMENT}:init
       
       - bash scripts/prebuild-lambdas.sh
       
-      - echo "Running Terraform plan..."
-      - >-
-        terraform -chdir=infra plan
-        -var="Environment=${ENVIRONMENT}"
-        -out=tfplan
-        -input=false
+      - echo "Running Terraform plan for environment ${ENVIRONMENT}..."
+      - npm run tf:${ENVIRONMENT}:plan
       
   build:
     commands:
-      - echo "Applying Terraform..."
-      - terraform -chdir=infra apply -input=false tfplan
+      - echo "Applying Terraform for environment ${ENVIRONMENT}..."
+      - npm run tf:${ENVIRONMENT}:deploy
       
