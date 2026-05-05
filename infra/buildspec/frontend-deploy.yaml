@@ -1,0 +1,12 @@
+version: 0.2
+
+env:
+  variables:
+    BUCKET_PREFIX: "ecommerce-website-"
+    ENVIRONMENT: "staging"
+
+phases:
+  post_build:
+    commands:
+       - echo "Deploying to S3..."
+       - aws s3 sync "./" "s3://$BUCKET_PREFIX${ENVIRONMENT}" --delete

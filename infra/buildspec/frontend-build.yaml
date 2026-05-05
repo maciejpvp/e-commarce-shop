@@ -1,0 +1,22 @@
+version: 0.2
+
+env:
+  variables:
+    NODE_VERSION: "22"
+    AWS_DEFAULT_REGION: "eu-central-1"
+
+phases:
+  install:
+    commands:
+      - ls -la
+      - echo "Installing Node.js dependencies..."
+      - npm ci
+  build:
+    commands:
+       - echo "Building Project"
+       - npm run build:stage
+
+artifacts:
+  base-directory: 'dist'
+  files:
+    - '**/*'
