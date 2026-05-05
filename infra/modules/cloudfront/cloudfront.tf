@@ -25,6 +25,12 @@ resource "aws_cloudfront_distribution" "main_distro" {
   }
 
   origin {
+    domain_name              = var.website_bucket_domain_name
+    origin_id                = "S3-Website"
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3_oac.id
+  }
+
+  origin {
     domain_name = var.api_gateway_domain
     origin_id   = "APIGateway"
     origin_path = "/${var.api_gateway_stage}"
@@ -87,7 +93,7 @@ resource "aws_cloudfront_distribution" "main_distro" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-ProductMedia"
+    target_origin_id = "S3-Website"
 
     forwarded_values {
       query_string = false
@@ -101,6 +107,20 @@ resource "aws_cloudfront_distribution" "main_distro" {
     default_ttl            = 3600
     max_ttl                = 86400
     compress               = true
+  }
+
+  custom_error_response {
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 300
+  }
+
+  custom_error_response {
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 300
   }
 
   restrictions {
@@ -124,7 +144,7 @@ resource "aws_cloudfront_function" "strip_prefix" {
     create_before_destroy = true
   }
 
-  code    = <<EOF
+  code = <<EOF
 function handler(event) {
     var request = event.request;
     var uri = request.uri;
@@ -162,6 +182,30 @@ resource "aws_s3_bucket_policy" "allow_access_from_cloudfront" {
         }
         Action   = "s3:GetObject"
         Resource = "${var.media_bucket_arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.main_distro.arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket_policy" "allow_access_from_cloudfront_website" {
+  bucket = var.website_bucket_id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${var.website_bucket_arn}/*"
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = aws_cloudfront_distribution.main_distro.arn

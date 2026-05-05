@@ -272,12 +272,14 @@ module "s3_product_media" {
 module "cloudfront" {
   source = "./modules/cloudfront"
 
-  Environment              = var.Environment
-  media_bucket_id          = module.s3_product_media.bucket_id
-  media_bucket_domain_name = module.s3_product_media.domain_name
-  media_bucket_arn         = module.s3_product_media.bucket_arn
-  api_gateway_domain       = module.api_gateway.api_endpoint_domain
-  api_gateway_stage        = module.api_gateway.stage_name
-  api_key                  = module.api_gateway.api_key_value
-
+  Environment                = var.Environment
+  media_bucket_id            = module.s3_product_media.bucket_id
+  media_bucket_domain_name   = module.s3_product_media.domain_name
+  media_bucket_arn           = module.s3_product_media.bucket_arn
+  api_gateway_domain         = module.api_gateway.api_endpoint_domain
+  api_gateway_stage          = module.api_gateway.stage_name
+  api_key                    = module.api_gateway.api_key_value
+  website_bucket_id          = module.s3_product_media.website_bucket_id
+  website_bucket_arn         = module.s3_product_media.website_bucket_arn
+  website_bucket_domain_name = module.s3_product_media.website_domain_name
 }
