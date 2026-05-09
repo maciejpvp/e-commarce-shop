@@ -1,0 +1,23 @@
+info:
+  name: Product/Group/Delete
+  type: http
+  seq: 4
+
+http:
+  method: DELETE
+  url: https://d17q0wnd7fgmqz.cloudfront.net/api/products/group
+  body:
+    type: json
+    data: |-
+      {
+        "productIds": ["ca3976a4-3f95-4390-8205-1c0f8b4f0eeb"]
+      }
+  auth:
+    type: bearer
+    token: "{{cognito_token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

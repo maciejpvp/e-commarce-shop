@@ -1,0 +1,26 @@
+info:
+  name: Product/Update
+  type: http
+  seq: 2
+
+http:
+  method: PATCH
+  url: https://d17q0wnd7fgmqz.cloudfront.net/api/products/update/919b168a-a342-4282-a850-db94ec376aa6
+  body:
+    type: json
+    data: |-
+      {
+        "version": 7,
+        "data": {
+          "name": "AeroPress Clear"
+        }
+      }
+  auth:
+    type: bearer
+    token: "{{cognito_token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

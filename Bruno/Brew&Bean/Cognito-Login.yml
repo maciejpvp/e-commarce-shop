@@ -1,0 +1,45 @@
+info:
+  name: Cognito/Login
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: https://cognito-idp.eu-central-1.amazonaws.com/
+  headers:
+    - name: Content-Type
+      value: application/x-amz-json-1.1
+    - name: X-Amz-Target
+      value: AWSCognitoIdentityProviderService.InitiateAuth
+  body:
+    type: json
+    data: |-
+      {
+          "AuthFlow": "USER_PASSWORD_AUTH",
+          "ClientId": "125qmbhi8kogfpoc65tdg8kpd4",
+          "AuthParameters": {
+              "USERNAME": "{{process.env.email}}",
+              "PASSWORD": "{{process.env.password}}"
+          }
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const body = res.getBody();
+
+        if (body.AuthenticationResult) {
+          // Use IdToken for API Gateway/Cognito Auth or AccessToken for Cognito API
+          const token = body.AuthenticationResult.IdToken; 
+          
+          // Sets a collection-wide variable
+          bru.setVar("cognito_token", token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

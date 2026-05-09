@@ -1,0 +1,28 @@
+info:
+  name: Product/Group/Add
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: https://d17q0wnd7fgmqz.cloudfront.net/api/products/group
+  body:
+    type: json
+    data: |-
+      {
+        "productIds": [
+          "ca3976a4-3f95-4390-8205-1c0f8b4f0eeb",
+          "056b9dc8-9f33-4572-a4c6-53135fb2635d",
+          "919b168a-a342-4282-a850-db94ec376aa6"
+        ],
+        "group": "AeroPresses"
+      }
+  auth:
+    type: bearer
+    token: "{{cognito_token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
